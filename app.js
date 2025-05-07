@@ -151,10 +151,6 @@ app.post('/submit-booking', (req, res) => {
 });
 
 
-
-// Define your platform (your) commission rate
-const platformCommissionRate = 5; // 5% of booking value (this can be made editable later)
-
 // Define your platform (your) commission rate
 const platformCommissionRate = 5; // 5%
 
