@@ -75,14 +75,19 @@ app.post('/add-agent', (req, res) => {
                 if (err) {
                     return res.send('Error saving QR code path to database.');
                 }
-
-                res.send(`
-                    <h2>Agent "${agentName}" added successfully!</h2>
-                    <p>Commission Rate: ${commissionRate}%</p>
-                    <p>Here is their QR code:</p>
-                    <img src="/qr_codes/agent_${safeName}_${agentId}.png" alt="QR Code"><br><br>
-                    <a href="/admin">Add Another Agent</a>
-                `);
+                fs.readFile(path.join(__dirname, 'views', 'agent_success.html'), 'utf8', (err, data) => {
+                    if (err) {
+                        return res.send('Error loading success page.');
+                    }
+                
+                    let page = data
+                        .replace('Agent Name', agentName)
+                        .replace('0', commissionRate)
+                        .replace('src=""', `src="/qr_codes/agent_${safeName}_${agentId}.png"`);
+                
+                    res.send(page);
+                });
+                
             });
         });
     });
