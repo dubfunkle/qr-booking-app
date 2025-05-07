@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin - Add Agent</title>
+</head>
+<body>
+    <h1>Add a New Agent</h1>
+    <form action="/add-agent" method="POST">
+        <label for="name">Agent Name:</label><br>
+        <input type="text" id="name" name="name" required><br><br>
+    
+        <label for="commission_rate">Commission % (e.g., 10 for 10%):</label><br>
+        <input type="number" id="commission_rate" name="commission_rate" value="10" min="0" max="100" required><br><br>
+    
+        <input type="submit" value="Add Agent">
+    </form>  
+    <br>
+    <a href="/">Back to Home</a>
+</body>
+</html>

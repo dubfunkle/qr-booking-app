@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Booking Page</title>
+</head>
+<body>
+    <h1>Book Your Course</h1>
+    <p>Referred by: <strong id="agentName">Agent</strong></p>
+    <form action="/submit-booking" method="POST">
+        <input type="hidden" id="agentId" name="agentId" value="{{AGENT_ID}}">
+        <label for="user_name">Your Name:</label><br>
+        <input type="text" id="user_name" name="user_name" required><br><br>
+
+        <label for="user_email">Your Email:</label><br>
+        <input type="email" id="user_email" name="user_email" required><br><br>
+
+        <label for="course">Course:</label><br>
+        <input type="text" id="course" name="course" required><br><br>
+
+        <label for="start_date">Preferred Start Date:</label><br>
+        <input type="date" id="start_date" name="start_date" required><br><br>
+
+        <input type="submit" value="Submit Booking">
+    </form>
+</body>
+</html>
