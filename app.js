@@ -121,11 +121,22 @@ app.get('/booking/:agentId', (req, res) => {
 
 // Route to handle booking form submission
 app.post('/submit-booking', (req, res) => {
-    const { agentId, user_name, user_email, course, start_date } = req.body;
+    const {
+        agentId, user_name, surname, contact_number, user_email,
+        restaurant, course, accommodation, taxi_required,
+        arrival_date, departure_date
+    } = req.body;
 
-    db.run(`INSERT INTO bookings (agent_id, user_name, user_email, course, start_date)
-            VALUES (?, ?, ?, ?, ?)`,
-        [agentId, user_name, user_email, course, start_date],
+    db.run(`INSERT INTO bookings (
+                agent_id, user_name, surname, contact_number, user_email,
+                restaurant, course, accommodation, taxi_required,
+                arrival_date, departure_date
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+            agentId, user_name, surname, contact_number, user_email,
+            restaurant, course, accommodation, taxi_required,
+            arrival_date, departure_date
+        ],
         function (err) {
             if (err) {
                 return res.send('Error saving booking.');
@@ -140,14 +151,19 @@ app.post('/submit-booking', (req, res) => {
 });
 
 
+
 // Define your platform (your) commission rate
 const platformCommissionRate = 5; // 5% of booking value (this can be made editable later)
 
-// Route to view all bookings
+// Define your platform (your) commission rate
+const platformCommissionRate = 5; // 5%
+
 app.get('/admin/bookings', (req, res) => {
     const query = `
         SELECT bookings.id AS booking_id, agents.name AS agent_name, agents.commission_rate,
-               user_name, user_email, course, start_date
+               user_name, surname, contact_number, user_email,
+               restaurant, course, accommodation, taxi_required,
+               arrival_date, departure_date
         FROM bookings
         LEFT JOIN agents ON bookings.agent_id = agents.id
     `;
@@ -165,8 +181,7 @@ app.get('/admin/bookings', (req, res) => {
             let rowsHtml = '';
 
             rows.forEach(row => {
-                // For now, let's assume a fixed course price (we can make this dynamic later)
-                const bookingValue = 1000; // Example: €1000 per course
+                const bookingValue = 1000; // Still assuming €1000 booking value for now
                 const agentCommission = ((row.commission_rate || 10) / 100) * bookingValue;
                 const platformCommission = (platformCommissionRate / 100) * bookingValue;
 
@@ -175,9 +190,15 @@ app.get('/admin/bookings', (req, res) => {
                         <td>${row.booking_id}</td>
                         <td>${row.agent_name}</td>
                         <td>${row.user_name}</td>
+                        <td>${row.surname || ''}</td>
+                        <td>${row.contact_number || ''}</td>
                         <td>${row.user_email}</td>
+                        <td>${row.restaurant || ''}</td>
                         <td>${row.course}</td>
-                        <td>${row.start_date}</td>
+                        <td>${row.accommodation || 'None'}</td>
+                        <td>${row.taxi_required || 'No'}</td>
+                        <td>${row.arrival_date || ''}</td>
+                        <td>${row.departure_date || ''}</td>
                         <td>€${agentCommission.toFixed(2)}</td>
                         <td>€${platformCommission.toFixed(2)}</td>
                     </tr>
@@ -185,11 +206,11 @@ app.get('/admin/bookings', (req, res) => {
             });
 
             const page = data.replace('{{BOOKINGS}}', rowsHtml);
-
             res.send(page);
         });
     });
 });
+
 
 // Route to view all agents
 app.get('/admin/agents', (req, res) => {
