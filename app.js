@@ -35,8 +35,9 @@ db.serialize(() => {
 });
 
 // Home page for testing
+
 app.get('/', (req, res) => {
-    res.send('<h1>QR Booking App is running!</h1><br><a href="/admin">Go to Admin</a><br><a href="/admin/bookings">View Bookings</a>');
+    res.sendFile(path.join(__dirname, 'views', 'home.html'));
 });
 
 
