@@ -118,7 +118,7 @@ app.post('/add-agent', (req, res) => {
         const agentId = this.lastID; // Get the ID of the inserted agent
         const qrData = `http://agentqr.maltalanguagehub.com:3000/booking/${agentId}`; // QR will lead to this URL
 
-        const qrPath = `public/qr_codes/agent_${safeName}_${agentId}.png`;
+        const qrPath = path.join('qrcodes', `agent_${safeName}_${agentId}.png`);
 
         // Generate QR code
         QRCode.toFile(qrPath, qrData, function (err) {
@@ -139,7 +139,7 @@ app.post('/add-agent', (req, res) => {
                     let page = data
                         .replace('Agent Name', agentName)
                         .replace('0', commissionRate)
-                        .replace('src=""', `src="/qr_codes/agent_${safeName}_${agentId}.png"`);
+                        .replace('src=""', `src="/qrcodes/agent_${safeName}_${agentId}.png"`);
                 
                     res.send(page);
                 });
