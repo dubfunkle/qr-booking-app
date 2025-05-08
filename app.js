@@ -167,6 +167,29 @@ app.get('/booking/:agentId', (req, res) => {
     });
 });
 
+app.post('/preview-booking', (req, res) => {
+    const bookingData = req.body;
+
+    fs.readFile(path.join(__dirname, 'views', 'confirm_booking.html'), 'utf8', (err, template) => {
+        if (err) return res.send('Error loading confirmation page.');
+
+        let page = template;
+        Object.keys(bookingData).forEach(key => {
+            const value = bookingData[key] || 'Not provided';
+            page = page.replace(`{{${key}}}`, value);
+        });
+
+        // Prepare hidden fields for final submission
+        let hiddenFields = '';
+        Object.keys(bookingData).forEach(key => {
+            hiddenFields += `<input type="hidden" name="${key}" value="${bookingData[key]}">\n`;
+        });
+        page = page.replace('{{HIDDEN_FIELDS}}', hiddenFields);
+
+        res.send(page);
+    });
+});
+
 // Route to handle booking form submission
 app.post('/submit-booking', (req, res) => {
     const {
@@ -197,6 +220,7 @@ app.post('/submit-booking', (req, res) => {
             `);
         });
 });
+
 
 
 function requireAdmin(req, res, next) {

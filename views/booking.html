@@ -1,31 +1,81 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Booking Page</title>
+    <title>Book Your Course</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body class="container mt-5">
-    <h1>Book Your Course</h1>
-    <p>Referred by: <strong id="agentName">Agent</strong></p>
-    <form action="/submit-booking" method="POST">
-        <input type="hidden" id="agentId" name="agentId" value="{{AGENT_ID}}">
+    <h1 class="mb-4">Book Your Course</h1>
+    <p>Referred by: <strong>{{AGENT_NAME}}</strong></p>
+
+    <form action="/preview-booking" method="POST">
+        <input type="hidden" name="agentId" value="{{AGENT_ID}}">
+
+        <h5>Personal Details</h5>
         <div class="mb-3">
-            <label for="user_name" class="form-label">Your Name:</label>
-            <input type="text" id="user_name" name="user_name" class="form-control" required>
+            <label>Name:</label>
+            <input type="text" name="user_name" class="form-control" required>
         </div>
         <div class="mb-3">
-            <label for="user_email" class="form-label">Your Email:</label>
-            <input type="email" id="user_email" name="user_email" class="form-control" required>
+            <label>Surname:</label>
+            <input type="text" name="surname" class="form-control" required>
         </div>
         <div class="mb-3">
-            <label for="course" class="form-label">Course:</label>
-            <input type="text" id="course" name="course" class="form-control" required>
+            <label>Email address:</label>
+            <input type="email" name="user_email" class="form-control" required>
         </div>
         <div class="mb-3">
-            <label for="start_date" class="form-label">Preferred Start Date:</label>
-            <input type="date" id="start_date" name="start_date" class="form-control" required>
+            <label>Contact number (with country code):</label>
+            <input type="text" name="contact_number" class="form-control" required>
         </div>
-        <button type="submit" class="btn btn-primary">Submit Booking</button>
+
+        <h5>Booking Details</h5>
+        <div class="mb-3">
+            <label>Name of place where QR was scanned:</label>
+            <input type="text" name="restaurant" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label>Course Required:</label>
+            <select name="course" class="form-select" required>
+                <option value="General English - EUR250">General English (15hrs/week) - EUR250.00</option>
+                <option value="Business English 15hrs - EUR400">Business English (15hrs/week) - EUR400.00</option>
+                <option value="Business English 25hrs - EUR500">Business English (25hrs/week) - EUR500.00</option>
+                <option value="IELTS - EUR250">Exam Preparation IELTS Course - EUR250.00</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label>Accommodation Required:</label>
+            <select name="accommodation" class="form-select">
+                <option value="">None</option>
+                <option value="Host Family Single - EUR290">Host Family Single - EUR290 (low season)</option>
+                <option value="Host Family Single - EUR380">Host Family Single - EUR380 (summer)</option>
+                <option value="Host Family Sharing - EUR240">Host Family Sharing - EUR240 (low season)</option>
+                <option value="Host Family Sharing - EUR275">Host Family Sharing - EUR275 (summer)</option>
+                <option value="Apartment Single - EUR330">Apartment Single - EUR330 (low season)</option>
+                <option value="Apartment Single - EUR570">Apartment Single - EUR570 (summer)</option>
+                <option value="Apartment Sharing - EUR165">Apartment Sharing - EUR165 (low season)</option>
+                <option value="Apartment Sharing - EUR285">Apartment Sharing - EUR285 (summer)</option>
+                <option value="Hotel">Hotel (price on request)</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label>Is an airport taxi required? (€46 per person)</label><br>
+            <input type="radio" name="taxi_required" value="Yes"> Yes
+            <input type="radio" name="taxi_required" value="No" checked> No
+        </div>
+
+        <div class="mb-3">
+            <label>Arrival Date:</label>
+            <input type="date" name="arrival_date" class="form-control">
+        </div>
+        <div class="mb-3">
+            <label>Departure Date:</label>
+            <input type="date" name="departure_date" class="form-control">
+        </div>
+
+        <button type="submit" class="btn btn-primary">Continue to Review</button>
     </form>
 </body>
 </html>
