@@ -325,7 +325,7 @@ app.get('/admin/agents', requireAdmin, (req, res) => {
                         <td>${row.id}</td>
                         <td>${row.name}</td>
                         <td>${row.commission_rate}%</td>
-                        <td><img src="${row.qr_code}" alt="QR Code" width="100"></td>
+                        <img src="/qrcodes/${row.qr_code}" alt="QR Code" width="100">
                     </tr>
                 `;
             });
