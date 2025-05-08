@@ -11,8 +11,6 @@ const ADMIN_USERNAME = 'stv_admin';
 const ADMIN_PASSWORD = 'Todayisafuckinggoodday!!!'; // Change to something strong
 
 // Ensure qrcodes folder exists
-const path = require('path');
-
 const qrDir = path.join(__dirname, 'qrcodes');
 if (!fs.existsSync(qrDir)) {
     fs.mkdirSync(qrDir);
