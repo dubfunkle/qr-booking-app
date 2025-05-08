@@ -6,6 +6,7 @@ const path = require('path');
 const fs = require('fs');
 const app = express();
 const PORT = 3000;
+const BASE_URL = 'https://agentqr.maltalanguagehub.com';
 const session = require('express-session');
 const ADMIN_USERNAME = 'stv_admin';
 const ADMIN_PASSWORD = 'Todayisafuckinggoodday!!!'; // Change to something strong
@@ -116,8 +117,7 @@ app.post('/add-agent', (req, res) => {
         }
 
         const agentId = this.lastID; // Get the ID of the inserted agent
-        const qrData = `https://agentqr.maltalanguagehub.com/booking/${agentId}`; // QR will lead to this URL
-
+        const qrData = `${BASE_URL}/booking/${agentId}`;// QR will lead to this URL
         const qrPath = path.join('qrcodes', `agent_${safeName}_${agentId}.png`);
 
         // Generate QR code
