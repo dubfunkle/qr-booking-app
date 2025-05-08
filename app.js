@@ -8,6 +8,15 @@ const fs = require('fs');
 const app = express();
 const PORT = 3000;
 
+const session = require('express-session');
+
+app.use(session({
+    secret: 'your_super_secret_key_here', // Change this to something random!
+    resave: false,
+    saveUninitialized: true
+}));
+
+
 // Middleware
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static('public'));
@@ -40,9 +49,49 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'views', 'home.html'));
 });
 
+const ADMIN_USERNAME = 'admin';
+const ADMIN_PASSWORD = 'yourpassword'; // Change to something strong
+
+// Login page
+app.get('/login', (req, res) => {
+    res.send(`
+        <h2>Admin Login</h2>
+        <form method="POST" action="/login">
+            <input type="text" name="username" placeholder="Username" required><br>
+            <input type="password" name="password" placeholder="Password" required><br>
+            <button type="submit">Login</button>
+        </form>
+    `);
+});
+
+// Handle login
+app.post('/login', (req, res) => {
+    const { username, password } = req.body;
+    if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+        req.session.isAdmin = true;
+        res.redirect('/admin');
+    } else {
+        res.send('Invalid credentials. <a href="/login">Try again</a>.');
+    }
+});
+
+// Logout
+app.get('/logout', (req, res) => {
+    req.session.destroy(() => {
+        res.redirect('/login');
+    });
+});
+
+function requireAdmin(req, res, next) {
+    if (req.session.isAdmin) {
+        next();
+    } else {
+        res.redirect('/login');
+    }
+}
 
 // Route to show Admin form
-app.get('/admin', (req, res) => {
+app.get('/admin', requireAdmin, (req, res) => {
     res.sendFile(path.join(__dirname, 'views', 'admin.html'));
 });
 
@@ -151,10 +200,20 @@ app.post('/submit-booking', (req, res) => {
 });
 
 
+function requireAdmin(req, res, next) {
+    if (req.session.isAdmin) {
+        next();
+    } else {
+        res.redirect('/login');
+    }
+}
+
+
 // Define your platform (your) commission rate
 const platformCommissionRate = 5; // 5%
 
-app.get('/admin/bookings', (req, res) => {
+app.get('/admin/bookings', requireAdmin, (req, res) => {
+
     const query = `
         SELECT bookings.id AS booking_id, agents.name AS agent_name, agents.commission_rate,
                user_name, surname, contact_number, user_email,
@@ -207,9 +266,16 @@ app.get('/admin/bookings', (req, res) => {
     });
 });
 
+function requireAdmin(req, res, next) {
+    if (req.session.isAdmin) {
+        next();
+    } else {
+        res.redirect('/login');
+    }
+}
 
 // Route to view all agents
-app.get('/admin/agents', (req, res) => {
+app.get('/admin/agents', requireAdmin, (req, res) => {
     db.all(`SELECT id, name, commission_rate, qr_code FROM agents`, [], (err, rows) => {
         if (err) {
             return res.send('Error retrieving agents.');
