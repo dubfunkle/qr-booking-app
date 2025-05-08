@@ -116,7 +116,7 @@ app.post('/add-agent', (req, res) => {
         }
 
         const agentId = this.lastID; // Get the ID of the inserted agent
-        const qrData = `http://agentqr.maltalanguagehub.com:3000/booking/${agentId}`; // QR will lead to this URL
+        const qrData = `https://agentqr.maltalanguagehub.com/booking/${agentId}`; // QR will lead to this URL
 
         const qrPath = path.join('qrcodes', `agent_${safeName}_${agentId}.png`);
 
