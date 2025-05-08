@@ -4,11 +4,11 @@ const sqlite3 = require('sqlite3').verbose();
 const QRCode = require('qrcode');
 const path = require('path');
 const fs = require('fs');
-
 const app = express();
 const PORT = 3000;
-
 const session = require('express-session');
+const ADMIN_USERNAME = 'stv_admin';
+const ADMIN_PASSWORD = 'Todayisafuckinggoodday!!!'; // Change to something strong
 
 app.use(session({
     secret: 'your_super_secret_key_here', // Change this to something random!
@@ -49,8 +49,7 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'views', 'home.html'));
 });
 
-const ADMIN_USERNAME = 'admin';
-const ADMIN_PASSWORD = 'yourpassword'; // Change to something strong
+
 
 // Login page
 app.get('/login', (req, res) => {
