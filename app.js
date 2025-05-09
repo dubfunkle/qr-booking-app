@@ -221,11 +221,15 @@ app.post('/submit-booking', (req, res) => {
                 return res.send('Error saving booking.');
             }
 
-            res.send(`
-                <h2>Thank you, ${user_name}!</h2>
-                <p>Your booking has been received.</p>
-                <a href="/">Return to Home</a>
-            `);
+            fs.readFile(path.join(__dirname, 'views', 'thank_you.html'), 'utf8', (err, template) => {
+                if (err) {
+                    return res.send('Error loading confirmation page.');
+                }
+            
+                const page = template.replace('{{user_name}}', user_name);
+                res.send(page);
+            });
+            
         });
 });
 
