@@ -1,0 +1,15 @@
+<%- include('partials/header', { title: 'Agent Added' }) %>
+
+<div class="container mt-5 text-center">
+    <h2 class="mb-3">Agent "<%= agentName %>" added successfully!</h2>
+    <p><strong>Commission Rate:</strong> <%= commissionRate %>%</p>
+    <p>Here is their QR code:</p>
+    <img src="<%= qrCodeUrl %>" alt="QR Code" class="img-thumbnail mb-4" width="200">
+
+    <div>
+        <a href="/admin" class="btn btn-primary me-2">Add Another Agent</a>
+        <a href="/admin/agents" class="btn btn-secondary">View Agents</a>
+    </div>
+</div>
+
+<%- include('partials/footer') %>

@@ -127,18 +127,11 @@ app.post('/add-agent', (req, res) => {
                 if (err) {
                     return res.send('Error saving QR code path to database.');
                 }
-                fs.readFile(path.join(__dirname, 'views', 'agent_success.html'), 'utf8', (err, data) => {
-                    if (err) {
-                        return res.send('Error loading success page.');
-                    }
-                
-                    let page = data
-                        .replace('Agent Name', agentName)
-                        .replace('0', commissionRate)
-                        .replace('src=""', `src="/qrcodes/agent_${safeName}_${agentId}.png"`);
-                
-                    res.send(page);
-                });
+                res.render('agent_success', {
+                    agentName,
+                    commissionRate,
+                    qrCodeUrl: `/qrcodes/agent_${safeName}_${agentId}.png`
+                });                
                 
             });
         });
