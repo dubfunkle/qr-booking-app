@@ -55,9 +55,8 @@ db.serialize(() => {
 // Home page for testing
 
 app.get('/', (req, res) => {
-    res.render('home');
+    res.sendFile(path.join(__dirname, 'views', 'home.html'));
 });
-
 
 
 
