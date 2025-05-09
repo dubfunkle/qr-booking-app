@@ -5,6 +5,7 @@ const QRCode = require('qrcode');
 const path = require('path');
 const fs = require('fs');
 const app = express();
+app.set('view engine', 'ejs');
 const PORT = 3000;
 const BASE_URL = 'https://agentqr.maltalanguagehub.com';
 const session = require('express-session');
