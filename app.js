@@ -167,9 +167,11 @@ app.get('/booking/:agentId', (req, res) => {
             }
 
             // Replace placeholders with actual values
-            let page = data.replace('{{AGENT_ID}}', agentId);
-            page = page.replace('Agent', row.name);
+            const page = data
+                .replace('{{AGENT_ID}}', agentId)
+                .replace('{{AGENT_NAME}}', row.name);
 
+            // ✅ Send the processed HTML back
             res.send(page);
         });
     });
