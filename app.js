@@ -195,14 +195,7 @@ app.post('/submit-booking', (req, res) => {
                 return res.send('Error saving booking.');
             }
 
-            fs.readFile(path.join(__dirname, 'views', 'thank_you.html'), 'utf8', (err, template) => {
-                if (err) {
-                    return res.send('Error loading confirmation page.');
-                }
-            
-                const page = template.replace('{{user_name}}', user_name);
-                res.send(page);
-            });
+            res.render('thank_you', { user_name });
             
         });
 });
