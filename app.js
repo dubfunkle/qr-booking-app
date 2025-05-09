@@ -96,7 +96,7 @@ function requireAdmin(req, res, next) {
 
 // Route to show Admin form
 app.get('/admin', requireAdmin, (req, res) => {
-    res.sendFile(path.join(__dirname, 'views', 'admin.html'));
+    res.render('admin');
 });
 
 // Route to handle new agent submission
