@@ -254,41 +254,15 @@ app.get('/admin/bookings', requireAdmin, (req, res) => {
             return res.send('Error retrieving bookings.');
         }
 
-        fs.readFile(path.join(__dirname, 'views', 'bookings.html'), 'utf8', (err, data) => {
-            if (err) {
-                return res.send('Error loading bookings page.');
-            }
+        const bookingValue = 1000;
+const bookings = rows.map(row => ({
+    ...row,
+    agent_commission: ((row.commission_rate || 10) / 100) * bookingValue,
+    platform_commission: (platformCommissionRate / 100) * bookingValue
+}));
 
-            let rowsHtml = '';
+res.render('bookings', { bookings });
 
-            rows.forEach(row => {
-                const bookingValue = 1000; // Still assuming €1000 booking value for now
-                const agentCommission = ((row.commission_rate || 10) / 100) * bookingValue;
-                const platformCommission = (platformCommissionRate / 100) * bookingValue;
-
-                rowsHtml += `
-                    <tr>
-                        <td>${row.booking_id}</td>
-                        <td>${row.agent_name}</td>
-                        <td>${row.user_name}</td>
-                        <td>${row.surname || ''}</td>
-                        <td>${row.contact_number || ''}</td>
-                        <td>${row.user_email}</td>
-                        <td>${row.restaurant || ''}</td>
-                        <td>${row.course}</td>
-                        <td>${row.accommodation || 'None'}</td>
-                        <td>${row.taxi_required || 'No'}</td>
-                        <td>${row.arrival_date || ''}</td>
-                        <td>${row.departure_date || ''}</td>
-                        <td>€${agentCommission.toFixed(2)}</td>
-                        <td>€${platformCommission.toFixed(2)}</td>
-                    </tr>
-                `;
-            });
-
-            const page = data.replace('{{BOOKINGS}}', rowsHtml);
-            res.send(page);
-        });
     });
 });
 
