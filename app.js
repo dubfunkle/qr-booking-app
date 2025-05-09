@@ -62,14 +62,13 @@ app.get('/', (req, res) => {
 
 // Login page
 app.get('/login', (req, res) => {
-    res.send(`
-        <h2>Admin Login</h2>
-        <form method="POST" action="/login">
-            <input type="text" name="username" placeholder="Username" required><br>
-            <input type="password" name="password" placeholder="Password" required><br>
-            <button type="submit">Login</button>
-        </form>
-    `);
+    fs.readFile(path.join(__dirname, 'views', 'login.html'), 'utf8', (err, html) => {
+        if (err) {
+            return res.send('Error loading login page.');
+        }
+        res.send(html);
+    });
+    
 });
 
 // Handle login
