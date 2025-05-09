@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Confirm Your Booking</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.3/dist/cosmo/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+<div class="container py-4">
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <h3 class="card-title mb-4">Step 2 of 2: Confirm Your Booking</h3>
+
+            <ul class="list-group mb-4">
+                <li class="list-group-item"><strong>Name:</strong> {{user_name}}</li>
+                <li class="list-group-item"><strong>Surname:</strong> {{surname}}</li>
+                <li class="list-group-item"><strong>Email:</strong> {{user_email}}</li>
+                <li class="list-group-item"><strong>Contact:</strong> {{contact_number}}</li>
+                <li class="list-group-item"><strong>Restaurant:</strong> {{restaurant}}</li>
+                <li class="list-group-item"><strong>Course:</strong> {{course}}</li>
+                <li class="list-group-item"><strong>Accommodation:</strong> {{accommodation}}</li>
+                <li class="list-group-item"><strong>Taxi Required:</strong> {{taxi_required}}</li>
+                <li class="list-group-item"><strong>Arrival Date:</strong> {{arrival_date}}</li>
+                <li class="list-group-item"><strong>Departure Date:</strong> {{departure_date}}</li>
+            </ul>
+
+            <form action="/submit-booking" method="POST">
+                {{HIDDEN_FIELDS}}
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-success btn-lg">Confirm Booking</button>
+                    <a href="javascript:history.back()" class="btn btn-secondary btn-lg">Edit Details</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

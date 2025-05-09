@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Login</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.3/dist/cosmo/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: #f8f9fa;
+        }
+        .login-wrapper {
+            max-width: 100%;
+            width: 100%;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        @media (min-width: 576px) {
+            .login-wrapper {
+                max-width: 400px;
+            }
+        }
+    </style>
+</head>
+<body class="d-flex align-items-center justify-content-center" style="min-height: 100vh;">
+    <div class="card shadow-sm login-wrapper">
+        <div class="card-body">
+            <h3 class="card-title mb-4 text-center">Admin Login</h3>
+            <form method="POST" action="/login">
+                <div class="mb-3">
+                    <label class="form-label">Username</label>
+                    <input type="text" name="username" class="form-control form-control-lg" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Password</label>
+                    <input type="password" name="password" class="form-control form-control-lg" required>
+                </div>
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary btn-lg">Login</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

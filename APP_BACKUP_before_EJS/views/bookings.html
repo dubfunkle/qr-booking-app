@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Admin - All Bookings</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.3/dist/cosmo/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="container mt-5">
+    <h1 class="mb-4">All Bookings</h1>
+
+    <div class="table-responsive">
+        <table class="table table-striped table-bordered table-sm align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>Booking ID</th>
+                    <th>Agent</th>
+                    <th>Name</th>
+                    <th>Surname</th>
+                    <th>Contact</th>
+                    <th>Email</th>
+                    <th>Restaurant</th>
+                    <th>Course</th>
+                    <th>Accommodation</th>
+                    <th>Taxi</th>
+                    <th>Arrival</th>
+                    <th>Departure</th>
+                    <th>Agent Commission (€)</th>
+                    <th>Your Commission (€)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{BOOKINGS}}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="mt-4">
+        <a href="/" class="btn btn-outline-primary me-2">Home</a>
+        <a href="/admin" class="btn btn-secondary">Back to Admin</a>
+    </div>
+</body>
+</html>
