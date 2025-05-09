@@ -150,19 +150,11 @@ app.get('/booking/:agentId', (req, res) => {
         }
 
         // Read the booking form HTML
-        fs.readFile(path.join(__dirname, 'views', 'booking.html'), 'utf8', (err, data) => {
-            if (err) {
-                return res.send('Error loading booking form.');
-            }
-
-            // Replace placeholders with actual values
-            const page = data
-                .replace('{{AGENT_ID}}', agentId)
-                .replace('{{AGENT_NAME}}', row.name);
-
-            // ✅ Send the processed HTML back
-            res.send(page);
+        res.render('booking', {
+            agentId,
+            agentName: row.name
         });
+        
     });
 });
 
