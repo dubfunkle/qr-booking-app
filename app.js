@@ -307,28 +307,8 @@ app.get('/admin/agents', requireAdmin, (req, res) => {
             return res.send('Error retrieving agents.');
         }
 
-        fs.readFile(path.join(__dirname, 'views', 'agents.html'), 'utf8', (err, data) => {
-            if (err) {
-                return res.send('Error loading agents page.');
-            }
+        res.render('agents', { agents: rows });
 
-            let rowsHtml = '';
-
-            rows.forEach(row => {
-                rowsHtml += `
-                    <tr>
-                        <td>${row.id}</td>
-                        <td>${row.name}</td>
-                        <td>${row.commission_rate}%</td>
-                        <td><img src="/${row.qr_code}" alt="QR Code" width="100"></td>
-                    </tr>
-                `;
-            });
-
-            const page = data.replace('{{AGENTS}}', rowsHtml);
-
-            res.send(page);
-        });
     });
 });
 
