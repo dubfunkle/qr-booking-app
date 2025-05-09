@@ -161,24 +161,15 @@ app.get('/booking/:agentId', (req, res) => {
 app.post('/preview-booking', (req, res) => {
     const bookingData = req.body;
 
-    fs.readFile(path.join(__dirname, 'views', 'confirm_booking.html'), 'utf8', (err, template) => {
-        if (err) return res.send('Error loading confirmation page.');
-
-        let page = template;
-        Object.keys(bookingData).forEach(key => {
-            const value = bookingData[key] || 'Not provided';
-            page = page.replace(`{{${key}}}`, value);
-        });
-
-        // Prepare hidden fields for final submission
-        let hiddenFields = '';
-        Object.keys(bookingData).forEach(key => {
-            hiddenFields += `<input type="hidden" name="${key}" value="${bookingData[key]}">\n`;
-        });
-        page = page.replace('{{HIDDEN_FIELDS}}', hiddenFields);
-
-        res.send(page);
+    const hiddenFields = Object.keys(bookingData).map(key => {
+        return `<input type="hidden" name="${key}" value="${bookingData[key]}">`;
+    }).join('\n');
+    
+    res.render('confirm_booking', {
+        ...bookingData,
+        hiddenFields
     });
+    
 });
 
 // Route to handle booking form submission
