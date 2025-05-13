@@ -3,16 +3,18 @@
     const departureInput = document.querySelector('input[name="departure_date"]');
   
     arrivalInput.addEventListener('change', () => {
+      departureInput.value = "";
       departureInput.min = arrivalInput.value;
     });
   
-    departureInput.addEventListener('change', () => {
-      if (departureInput.value < arrivalInput.value) {
+    departureInput.addEventListener('blur', () => {
+      if (arrivalInput.value && departureInput.value && departureInput.value < arrivalInput.value) {
         alert("Departure date cannot be before arrival date.");
         departureInput.value = "";
       }
     });
   </script>
+  
   
 
 </body>
