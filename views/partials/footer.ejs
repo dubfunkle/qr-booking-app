@@ -1,2 +1,20 @@
+<script>
+    const arrivalInput = document.querySelector('input[name="arrival_date"]');
+    const departureInput = document.querySelector('input[name="departure_date"]');
+  
+    arrivalInput.addEventListener('change', () => {
+      departureInput.min = arrivalInput.value;
+    });
+  
+    departureInput.addEventListener('change', () => {
+      if (departureInput.value < arrivalInput.value) {
+        alert("Departure date cannot be before arrival date.");
+        departureInput.value = "";
+      }
+    });
+  </script>
+  
+
 </body>
 </html>
+
