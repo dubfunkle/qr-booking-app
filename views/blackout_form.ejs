@@ -24,4 +24,26 @@
   </form>
 </div>
 
+
+<% if (blackoutDates && blackoutDates.length > 0) { %>
+    <hr class="my-8">
+  
+    <h2 class="text-xl font-bold mb-4 text-gray-800">Blocked Dates</h2>
+  
+    <ul class="space-y-2">
+      <% blackoutDates.forEach(date => { %>
+        <li class="flex justify-between items-center bg-gray-50 p-3 rounded-lg border text-sm text-gray-700">
+          <span><%= date.date %></span>
+          <form action="/admin/remove-blackout" method="POST" onsubmit="return confirm('Remove this date?')">
+            <input type="hidden" name="id" value="<%= date.id %>">
+            <button type="submit" class="text-red-500 hover:text-red-700 font-medium">Remove</button>
+          </form>
+        </li>
+      <% }) %>
+    </ul>
+  <% } %>
+  
+
 <%- include('partials/footer') %>
+
+

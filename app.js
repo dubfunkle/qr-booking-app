@@ -277,8 +277,17 @@ app.listen(3000, '0.0.0.0', () => {
 // Show blackout date form
 
 app.get('/admin/blackout', requireAdmin, (req, res) => {
-    res.render('blackout_form');
+    db.all(`SELECT id, date FROM blackout_dates ORDER BY date ASC`, [], (err, rows) => {
+        if (err) {
+            return res.send('Error loading blackout dates.');
+        }
+
+        res.render('blackout_form', {
+            blackoutDates: rows
+        });
+    });
 });
+
 
 app.post('/admin/add-blackout', requireAdmin, (req, res) => {
     const { start_date, end_date } = req.body;
@@ -337,3 +346,14 @@ app.post('/admin/review-blackout', requireAdmin, (req, res) => {
 });
 
 
+app.post('/admin/remove-blackout', requireAdmin, (req, res) => {
+    const id = req.body.id;
+
+    db.run(`DELETE FROM blackout_dates WHERE id = ?`, [id], (err) => {
+        if (err) {
+            return res.send('Error removing date.');
+        }
+
+        res.redirect('/admin/blackout');
+    });
+});
