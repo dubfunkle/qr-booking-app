@@ -12,6 +12,16 @@ const session = require('express-session');
 const ADMIN_USERNAME = 'stv_admin';
 const ADMIN_PASSWORD = 'Todayisafuckinggoodday!!!'; // Change to something strong
 
+const nodemailer = require('nodemailer');
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: 'maltalanguagehub@gmail.com',          // Replace with your Gmail address
+        pass: 'bgvw zrri gfrd wixr'        // Use App Password, not your real password
+    }
+});
+
+
 // Ensure qrcodes folder exists
 const qrDir = path.join(__dirname, 'qrcodes');
 if (!fs.existsSync(qrDir)) {
@@ -199,12 +209,46 @@ app.post('/submit-booking', (req, res) => {
                 return res.send('Error saving booking.');
             }
 
+            // ✅ Send emails ONLY after saving is successful
+            const mailOptions = {
+                from: 'yourgmail@gmail.com',
+                to: [user_email, 'maltalanguagehub@gmail.com'],
+                subject: 'Your Booking Confirmation – AM Language',
+                html: `
+                  <h2>Booking Confirmation</h2>
+                  <p>Dear ${user_name},</p>
+                  <p>Thank you for your booking with AM Language. Here are your details:</p>
+
+                  <ul>
+                    <li><strong>Name:</strong> ${user_name} ${surname}</li>
+                    <li><strong>Email:</strong> ${user_email}</li>
+                    <li><strong>Phone:</strong> ${contact_number}</li>
+                    <li><strong>Restaurant:</strong> ${restaurant}</li>
+                    <li><strong>Course:</strong> ${course}</li>
+                    <li><strong>Accommodation:</strong> ${accommodation}</li>
+                    <li><strong>Taxi Required:</strong> ${taxi_required}</li>
+                    <li><strong>Arrival Date:</strong> ${arrival_date}</li>
+                    <li><strong>Departure Date:</strong> ${departure_date}</li>
+                  </ul>
+
+                  <p><strong>IMPORTANT:</strong> You will now be contacted to submit a deposit to secure your booking.</p>
+
+                  <p>Best regards,<br>AM Language Team</p>
+                `
+            };
+
+            transporter.sendMail(mailOptions, (err, info) => {
+                if (err) {
+                    console.error('Error sending email:', err);
+                } else {
+                    console.log('Email sent:', info.response);
+                }
+            });
+
+            // ✅ Now show the thank you page
             res.render('thank_you', { user_name });
-            
         });
 });
-
-
 
 function requireAdmin(req, res, next) {
     if (req.session.isAdmin) {
