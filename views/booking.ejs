@@ -63,11 +63,21 @@
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <input type="date" name="arrival_date"
-               class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-orange-400 focus:outline-none">
-        <input type="date" name="departure_date"
-               class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-orange-400 focus:outline-none">
+        <div>
+          <label for="arrival_date" class="block text-sm font-medium text-gray-700 mb-1">Pick Start Date</label>
+          <input type="date" name="arrival_date" id="arrival_date"
+                 class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
+                 required>
+        </div>
+      
+        <div>
+          <label for="departure_date" class="block text-sm font-medium text-gray-700 mb-1">Pick End Date</label>
+          <input type="date" name="departure_date" id="departure_date"
+                 class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
+                 required>
+        </div>
       </div>
+      
 
       <button type="submit"
               class="w-full bg-orange-500 hover:bg-orange-600 text-white py-3 rounded-lg font-semibold text-lg transition">
