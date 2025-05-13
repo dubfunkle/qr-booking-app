@@ -268,7 +268,14 @@ app.listen(3000, '0.0.0.0', () => {
     console.log('Server running on port 3000');
 });
 
+
+
 // Show blackout date form
+
+app.get('/admin/blackout', requireAdmin, (req, res) => {
+    res.render('blackout_form');
+});
+
 app.post('/admin/add-blackout', requireAdmin, (req, res) => {
     const { start_date, end_date } = req.body;
 
