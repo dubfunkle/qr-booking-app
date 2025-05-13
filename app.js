@@ -269,22 +269,31 @@ app.listen(3000, '0.0.0.0', () => {
 });
 
 // Show blackout date form
-app.get('/admin/blackout', requireAdmin, (req, res) => {
-    res.render('blackout_form'); // We'll create this view next
-});
-
 app.post('/admin/add-blackout', requireAdmin, (req, res) => {
-    const blackoutDate = req.body.date;
+    const { start_date, end_date } = req.body;
 
-    if (!blackoutDate) {
-        return res.send('Invalid date.');
+    if (!start_date || !end_date) {
+        return res.send('Both start and end dates are required.');
     }
 
-    db.run(`INSERT OR IGNORE INTO blackout_dates (date) VALUES (?)`, [blackoutDate], function (err) {
-        if (err) {
-            return res.send('Error saving blackout date.');
-        }
+    const start = new Date(start_date);
+    const end = new Date(end_date);
 
+    if (start > end) {
+        return res.send('Start date cannot be after end date.');
+    }
+
+    const stmt = db.prepare('INSERT OR IGNORE INTO blackout_dates (date) VALUES (?)');
+
+    let current = new Date(start);
+    while (current <= end) {
+        const isoDate = current.toISOString().split('T')[0];
+        stmt.run(isoDate);
+        current.setDate(current.getDate() + 1);
+    }
+
+    stmt.finalize(() => {
         res.redirect('/admin/blackout');
     });
 });
+
