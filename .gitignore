@@ -1,3 +1,11 @@
+# Node.js dependencies
 node_modules/
+
+# Lock file (optional — include if you don't want to track exact versions)
 package-lock.json
+
+# Tailwind CLI binary (Windows)
 tailwindcss.exe
+
+# Tailwind build output
+public/css/tailwind.css
