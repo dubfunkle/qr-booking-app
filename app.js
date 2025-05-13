@@ -347,13 +347,22 @@ app.post('/admin/review-blackout', requireAdmin, (req, res) => {
 
 
 app.post('/admin/remove-blackout', requireAdmin, (req, res) => {
-    const id = req.body.id;
+    let ids = req.body.ids;
 
-    db.run(`DELETE FROM blackout_dates WHERE id = ?`, [id], (err) => {
+    if (!ids) return res.redirect('/admin/blackout');
+
+    // Ensure it's always an array
+    if (!Array.isArray(ids)) {
+        ids = [ids];
+    }
+
+    const placeholders = ids.map(() => '?').join(',');
+    db.run(`DELETE FROM blackout_dates WHERE id IN (${placeholders})`, ids, (err) => {
         if (err) {
-            return res.send('Error removing date.');
+            return res.send('Error removing dates.');
         }
 
         res.redirect('/admin/blackout');
     });
 });
+
