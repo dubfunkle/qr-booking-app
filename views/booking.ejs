@@ -28,17 +28,19 @@
        <div>
         <label for="contact_number" class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
         <div class="flex rounded-lg shadow-sm">
-          <span class="inline-flex items-center px-3 rounded-l-lg border border-r-0 border-gray-300 bg-gray-100 text-gray-700 text-sm select-none">
-            +356
-          </span>
+          <select name="phone_prefix" required
+                  class="rounded-l-lg border border-r-0 border-gray-300 bg-gray-100 text-gray-700 text-sm px-3 focus:outline-none">
+            <%- include('partials/phone_prefix_options') %>
+          </select>
+      
           <input type="tel" name="contact_number" id="contact_number" required
                  class="w-full rounded-r-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
                  placeholder="Enter phone number">
         </div>
       </div>
       
-        
       
+            
 <input type="text" name="restaurant" placeholder="Where was QR scanned?" required
        class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-orange-400 focus:outline-none">
 
