@@ -268,3 +268,23 @@ app.listen(3000, '0.0.0.0', () => {
     console.log('Server running on port 3000');
 });
 
+// Show blackout date form
+app.get('/admin/blackout', requireAdmin, (req, res) => {
+    res.render('blackout_form'); // We'll create this view next
+});
+
+app.post('/admin/add-blackout', requireAdmin, (req, res) => {
+    const blackoutDate = req.body.date;
+
+    if (!blackoutDate) {
+        return res.send('Invalid date.');
+    }
+
+    db.run(`INSERT OR IGNORE INTO blackout_dates (date) VALUES (?)`, [blackoutDate], function (err) {
+        if (err) {
+            return res.send('Error saving blackout date.');
+        }
+
+        res.redirect('/admin/blackout');
+    });
+});
