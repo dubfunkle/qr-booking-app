@@ -4,7 +4,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "tailwind:init": "tailwindcss init"
+    "tailwind:init": "tailwindcss init",
+    "build:css": "tailwindcss -i ./public/css/tailwind-source.css -o ./public/css/tailwind.css --minify"
   },
   "keywords": [],
   "author": "",
@@ -24,3 +25,4 @@
     "tailwindcss": "^4.1.6"
   }
 }
+
