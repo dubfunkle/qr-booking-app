@@ -102,5 +102,21 @@
     </form>
   </div>
 </div>
+<script>
+  const blackoutDates = <%- JSON.stringify(blackoutDates || []) %>;
+
+  function attachDateValidation(inputId) {
+    const input = document.getElementById(inputId);
+    input.addEventListener('change', () => {
+      if (blackoutDates.includes(input.value)) {
+        alert("This date is fully booked. Please choose another.");
+        input.value = "";
+      }
+    });
+  }
+
+  attachDateValidation('arrival_date');
+  attachDateValidation('departure_date');
+</script>
 
 <%- include('partials/footer') %>

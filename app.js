@@ -143,20 +143,24 @@ app.post('/add-agent', (req, res) => {
 app.get('/booking/:agentId', (req, res) => {
     const agentId = req.params.agentId;
 
-    // Get the agent's name from the database
     db.get(`SELECT name FROM agents WHERE id = ?`, [agentId], (err, row) => {
         if (err || !row) {
             return res.send('Agent not found.');
         }
 
-        // Read the booking form HTML
-        res.render('booking', {
-            agentId,
-            agentName: row.name
+        db.all(`SELECT date FROM blackout_dates`, [], (err, blackoutRows) => {
+            const blackoutDates = blackoutRows.map(r => r.date); // array of strings: YYYY-MM-DD
+
+            res.render('booking', {
+                agentId,
+                agentName: row.name,
+                blackoutDates
+            });
         });
-        
     });
 });
+
+
 
 app.post('/preview-booking', (req, res) => {
     const bookingData = req.body;
