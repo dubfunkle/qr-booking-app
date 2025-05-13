@@ -105,18 +105,16 @@
 <script>
   const blackoutDates = <%- JSON.stringify(blackoutDates || []) %>;
 
-  function attachDateValidation(inputId) {
-    const input = document.getElementById(inputId);
-    input.addEventListener('change', () => {
-      if (blackoutDates.includes(input.value)) {
-        alert("This date is fully booked. Please choose another.");
-        input.value = "";
-      }
-    });
-  }
+  flatpickr("#arrival_date", {
+    disable: blackoutDates,
+    dateFormat: "Y-m-d",
+  });
 
-  attachDateValidation('arrival_date');
-  attachDateValidation('departure_date');
+  flatpickr("#departure_date", {
+    disable: blackoutDates,
+    dateFormat: "Y-m-d",
+  });
 </script>
+
 
 <%- include('partials/footer') %>
