@@ -1,0 +1,24 @@
+<%- include('partials/header', { title: 'Review Blackout Dates' }) %>
+
+<div class="max-w-xl mx-auto mt-10 px-4">
+  <h1 class="text-2xl font-bold mb-6 text-gray-800">Confirm Blackout Dates</h1>
+
+  <p class="mb-4 text-gray-700">You are about to block the following dates:</p>
+
+  <ul class="list-disc list-inside mb-6 text-gray-800 bg-gray-50 p-4 rounded-lg">
+    <% dates.forEach(function(date) { %>
+      <li><%= date %></li>
+    <% }) %>
+  </ul>
+
+  <form action="/admin/add-blackout" method="POST">
+    <input type="hidden" name="start_date" value="<%= start_date %>">
+    <input type="hidden" name="end_date" value="<%= end_date %>">
+    <button type="submit"
+            class="w-full bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg font-semibold transition">
+      Confirm and Block These Dates
+    </button>
+  </form>
+</div>
+
+<%- include('partials/footer') %>
