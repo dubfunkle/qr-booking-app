@@ -1,15 +1,25 @@
 <%- include('partials/header', { title: 'Agent Added' }) %>
 
-<div class="container mt-5 text-center">
-    <h2 class="mb-3">Agent "<%= agentName %>" added successfully!</h2>
-    <p><strong>Commission Rate:</strong> <%= commissionRate %>%</p>
-    <p>Here is their QR code:</p>
-    <img src="<%= qrCodeUrl %>" alt="QR Code" class="img-thumbnail mb-4" width="200">
+<div class="min-h-screen flex items-center justify-center bg-orange-50 px-4 py-10">
+  <div class="bg-white p-6 rounded-xl shadow-lg max-w-md w-full text-center">
+    <h2 class="text-xl font-semibold text-gray-800 mb-3">
+      Agent "<%= agentName %>" added successfully!
+    </h2>
+    <p class="text-gray-700 mb-1">
+      <strong>Commission Rate:</strong> <%= commissionRate %>%
+    </p>
+    <p class="text-gray-600 mb-4">Here is their QR code:</p>
+    <img src="<%= qrCodeUrl %>" alt="QR Code" class="mx-auto rounded-md shadow mb-6" width="200">
 
-    <div>
-        <a href="/admin" class="btn btn-primary me-2">Add Another Agent</a>
-        <a href="/admin/agents" class="btn btn-secondary">View Agents</a>
+    <div class="flex justify-center gap-4">
+      <a href="/admin" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-md font-medium transition">
+        Add Another Agent
+      </a>
+      <a href="/admin/agents" class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-md font-medium transition">
+        View Agents
+      </a>
     </div>
+  </div>
 </div>
 
 <%- include('partials/footer') %>

@@ -1,55 +1,59 @@
 <%- include('partials/header', { title: 'All Bookings' }) %>
 
-<div class="container mt-5">
-    <h1 class="mb-4">All Bookings</h1>
+<div class="max-w-full mx-auto mt-10 px-4">
+  <h1 class="text-2xl font-bold text-gray-800 mb-6">All Bookings</h1>
 
-    <div class="table-responsive">
-        <table class="table table-bordered table-hover table-sm align-middle text-center">
-            <thead class="table-dark">
-                <tr>
-                    <th>ID</th>
-                    <th>Agent</th>
-                    <th>Name</th>
-                    <th>Surname</th>
-                    <th>Contact</th>
-                    <th>Email</th>
-                    <th>Restaurant</th>
-                    <th>Course</th>
-                    <th>Accommodation</th>
-                    <th>Taxi</th>
-                    <th>Arrival</th>
-                    <th>Departure</th>
-                    <th>Agent €</th>
-                    <th>You €</th>
-                </tr>
-            </thead>
-            <tbody>
-                <% bookings.forEach(row => { %>
-                    <tr>
-                        <td><%= row.booking_id %></td>
-                        <td class="text-nowrap"><%= row.agent_name %></td>
-                        <td class="text-nowrap"><%= row.user_name %></td>
-                        <td><%= row.surname || '' %></td>
-                        <td class="text-nowrap"><%= row.contact_number || '' %></td>
-                        <td class="text-nowrap"><%= row.user_email %></td>
-                        <td><%= row.restaurant || '' %></td>
-                        <td><%= row.course %></td>
-                        <td><%= row.accommodation || 'None' %></td>
-                        <td><%= row.taxi_required || 'No' %></td>
-                        <td class="text-nowrap"><%= row.arrival_date || '' %></td>
-                        <td class="text-nowrap"><%= row.departure_date || '' %></td>
-                        <td>€<%= row.agent_commission.toFixed(2) %></td>
-                        <td>€<%= row.platform_commission.toFixed(2) %></td>
-                    </tr>
-                <% }) %>
-            </tbody>
-        </table>
-    </div>
+  <div class="overflow-x-auto bg-white rounded-xl shadow border border-gray-300">
+    <table class="min-w-full text-sm text-center">
+      <thead class="bg-gray-800 text-white">
+        <tr>
+          <th class="px-3 py-2">ID</th>
+          <th class="px-3 py-2">Agent</th>
+          <th class="px-3 py-2">Name</th>
+          <th class="px-3 py-2">Surname</th>
+          <th class="px-3 py-2">Contact</th>
+          <th class="px-3 py-2">Email</th>
+          <th class="px-3 py-2">Restaurant</th>
+          <th class="px-3 py-2">Course</th>
+          <th class="px-3 py-2">Accommodation</th>
+          <th class="px-3 py-2">Taxi</th>
+          <th class="px-3 py-2">Arrival</th>
+          <th class="px-3 py-2">Departure</th>
+          <th class="px-3 py-2">Agent €</th>
+          <th class="px-3 py-2">You €</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% bookings.forEach(row => { %>
+          <tr class="even:bg-gray-50 hover:bg-orange-50 transition">
+            <td class="px-3 py-2"><%= row.booking_id %></td>
+            <td class="px-3 py-2 whitespace-nowrap"><%= row.agent_name %></td>
+            <td class="px-3 py-2 whitespace-nowrap"><%= row.user_name %></td>
+            <td class="px-3 py-2"><%= row.surname || '' %></td>
+            <td class="px-3 py-2 whitespace-nowrap"><%= row.contact_number || '' %></td>
+            <td class="px-3 py-2 whitespace-nowrap"><%= row.user_email %></td>
+            <td class="px-3 py-2"><%= row.restaurant || '' %></td>
+            <td class="px-3 py-2"><%= row.course %></td>
+            <td class="px-3 py-2"><%= row.accommodation || 'None' %></td>
+            <td class="px-3 py-2"><%= row.taxi_required || 'No' %></td>
+            <td class="px-3 py-2 whitespace-nowrap"><%= row.arrival_date || '' %></td>
+            <td class="px-3 py-2 whitespace-nowrap"><%= row.departure_date || '' %></td>
+            <td class="px-3 py-2">€<%= row.agent_commission.toFixed(2) %></td>
+            <td class="px-3 py-2">€<%= row.platform_commission.toFixed(2) %></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
 
-    <div class="mt-4">
-        <a href="/" class="btn btn-outline-primary me-2">Home</a>
-        <a href="/admin" class="btn btn-secondary">Back to Admin</a>
-    </div>
+  <div class="mt-6 flex flex-wrap gap-4">
+    <a href="/" class="inline-block bg-gray-100 hover:bg-gray-200 text-gray-800 px-4 py-2 rounded-md text-sm font-medium transition">
+      Home
+    </a>
+    <a href="/admin" class="inline-block bg-gray-300 hover:bg-gray-400 text-gray-900 px-4 py-2 rounded-md text-sm font-medium transition">
+      Back to Admin
+    </a>
+  </div>
 </div>
 
 <%- include('partials/footer') %>
