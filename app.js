@@ -237,13 +237,69 @@ app.post('/submit-booking', (req, res) => {
                 `
             };
 
-            transporter.sendMail(mailOptions, (err, info) => {
-                if (err) {
-                    console.error('Error sending email:', err);
-                } else {
-                    console.log('Email sent:', info.response);
-                }
-            });
+            // Email to the customer
+const customerMail = {
+    from: 'yourgmail@gmail.com',
+    to: user_email,
+    subject: 'Your Booking Confirmation – AM Language',
+    html: `
+      <h2>Booking Confirmation</h2>
+      <p>Dear ${user_name},</p>
+      <p>Thank you for your booking with AM Language. Here are your details:</p>
+
+      <ul>
+        <li><strong>Name:</strong> ${user_name} ${surname}</li>
+        <li><strong>Email:</strong> ${user_email}</li>
+        <li><strong>Phone:</strong> ${contact_number}</li>
+        <li><strong>Restaurant:</strong> ${restaurant}</li>
+        <li><strong>Course:</strong> ${course}</li>
+        <li><strong>Accommodation:</strong> ${accommodation}</li>
+        <li><strong>Taxi Required:</strong> ${taxi_required}</li>
+        <li><strong>Arrival Date:</strong> ${arrival_date}</li>
+        <li><strong>Departure Date:</strong> ${departure_date}</li>
+      </ul>
+
+      <p><strong>IMPORTANT:</strong> You will now be contacted to submit a deposit to secure your booking.</p>
+
+      <p>Best regards,<br>AM Language Team</p>
+    `
+};
+
+// Email to the school
+const schoolMail = {
+    from: 'yourgmail@gmail.com',
+    to: 'maltalanguagehub@gmail.com',
+    subject: `New Booking Request – ${user_name} ${surname}`,
+    html: `
+      <h2>New Booking Request</h2>
+      <p><strong>${user_name} ${surname}</strong> has just submitted a booking request through the QR app.</p>
+
+      <ul>
+        <li><strong>Email:</strong> ${user_email}</li>
+        <li><strong>Phone:</strong> ${contact_number}</li>
+        <li><strong>Restaurant:</strong> ${restaurant}</li>
+        <li><strong>Course:</strong> ${course}</li>
+        <li><strong>Accommodation:</strong> ${accommodation}</li>
+        <li><strong>Taxi Required:</strong> ${taxi_required}</li>
+        <li><strong>Arrival Date:</strong> ${arrival_date}</li>
+        <li><strong>Departure Date:</strong> ${departure_date}</li>
+      </ul>
+
+      <p>Follow up with the customer to arrange deposit and confirm the booking.</p>
+    `
+};
+
+// Send both
+transporter.sendMail(customerMail, (err, info) => {
+    if (err) console.error('Customer email error:', err);
+    else console.log('Customer email sent:', info.response);
+});
+
+transporter.sendMail(schoolMail, (err, info) => {
+    if (err) console.error('School email error:', err);
+    else console.log('School email sent:', info.response);
+});
+
 
             // ✅ Now show the thank you page
             res.render('thank_you', { user_name });
