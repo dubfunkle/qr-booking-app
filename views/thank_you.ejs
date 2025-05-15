@@ -9,10 +9,20 @@
           To confirm your place, please submit your €100 deposit using the button below.
         </p>
       
-        <a href="/pay/<%= agentId %>" 
-           class="inline-block w-full bg-green-500 hover:bg-green-600 text-white py-3 rounded-lg font-semibold text-lg transition">
-          Pay Now
-        </a>
+        <a href="/pay/<%= agentId %>?user_name=<%= encodeURIComponent(user_name) %>
+            &surname=<%= encodeURIComponent(surname) %>
+            &contact_number=<%= encodeURIComponent(contact_number) %>
+            &user_email=<%= encodeURIComponent(user_email) %>
+            &restaurant=<%= encodeURIComponent(restaurant) %>
+            &course=<%= encodeURIComponent(course) %>
+            &accommodation=<%= encodeURIComponent(accommodation) %>
+            &taxi_required=<%= encodeURIComponent(taxi_required) %>
+            &arrival_date=<%= encodeURIComponent(arrival_date) %>
+            &departure_date=<%= encodeURIComponent(departure_date) %>"
+               class="inline-block w-full bg-green-500 hover:bg-green-600 text-white py-3 rounded-lg font-semibold text-lg transition">
+              Pay Now
+            </a>
+            
       </div>      
 </div>
 

@@ -1,4 +1,5 @@
 require('dotenv').config();
+app.use('/webhook', require('body-parser').raw({ type: 'application/json' }));
 
 const stripe = require('./stripe');
 const express = require('express');
@@ -24,6 +25,53 @@ const transporter = nodemailer.createTransport({
     }
 });
 
+const bodyParser = require('body-parser');
+app.use('/webhook', bodyParser.raw({ type: 'application/json' }));
+
+app.post('/webhook', async (req, res) => {
+    const sig = req.headers['stripe-signature'];
+  
+    let event;
+    try {
+      event = stripe.webhooks.constructEvent(
+        req.body,
+        sig,
+        process.env.STRIPE_WEBHOOK_SECRET
+      );
+    } catch (err) {
+      console.error('❌ Webhook signature verification failed:', err.message);
+      return res.sendStatus(400);
+    }
+  
+    if (event.type === 'checkout.session.completed') {
+      const session = event.data.object;
+      const meta = session.metadata;
+  
+      // Save booking to DB
+      db.run(
+        `INSERT INTO bookings (
+          agent_id, user_name, surname, contact_number, user_email,
+          restaurant, course, accommodation, taxi_required,
+          arrival_date, departure_date
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          meta.agentId, meta.user_name, meta.surname, meta.contact_number, meta.user_email,
+          meta.restaurant, meta.course, meta.accommodation, meta.taxi_required,
+          meta.arrival_date, meta.departure_date
+        ],
+        function (err) {
+          if (err) {
+            console.error('❌ Error saving booking from webhook:', err);
+          } else {
+            console.log(`✅ Booking saved for ${meta.user_name} (${meta.user_email})`);
+          }
+        }
+      );
+    }
+  
+    res.status(200).end();
+  });
+  
 
 // Ensure qrcodes folder exists
 const qrDir = path.join(__dirname, 'qrcodes');
@@ -106,6 +154,8 @@ function requireAdmin(req, res, next) {
         res.redirect('/login');
     }
 }
+
+
 
 // Route to show Admin form
 app.get('/admin', requireAdmin, (req, res) => {
@@ -192,81 +242,18 @@ app.post('/preview-booking', (req, res) => {
 // Route to handle booking form submission
 app.post('/submit-booking', (req, res) => {
     const {
-        agentId, user_name, surname, contact_number, user_email,
-        restaurant, course, accommodation, taxi_required,
-        arrival_date, departure_date
+      agentId, user_name, surname, contact_number, user_email,
+      restaurant, course, accommodation, taxi_required,
+      arrival_date, departure_date
     } = req.body;
-
-    db.run(`INSERT INTO bookings (
-                agent_id, user_name, surname, contact_number, user_email,
-                restaurant, course, accommodation, taxi_required,
-                arrival_date, departure_date
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [
-            agentId, user_name, surname, contact_number, user_email,
-            restaurant, course, accommodation, taxi_required,
-            arrival_date, departure_date
-        ],
-        function (err) {
-            if (err) {
-                return res.send('Error saving booking.');
-            }
-
-            // ✅ Send emails ONLY after saving is successful
-            const mailOptions = {
-                from: 'yourgmail@gmail.com',
-                to: [user_email, 'maltalanguagehub@gmail.com'],
-                subject: 'Your Booking Confirmation – AM Language',
-                html: `
-                  <h2>Booking Confirmation</h2>
-                  <p>Dear ${user_name},</p>
-                  <p>Thank you for your booking with AM Language. Here are your details:</p>
-
-                  <ul>
-                    <li><strong>Name:</strong> ${user_name} ${surname}</li>
-                    <li><strong>Email:</strong> ${user_email}</li>
-                    <li><strong>Phone:</strong> ${contact_number}</li>
-                    <li><strong>Restaurant:</strong> ${restaurant}</li>
-                    <li><strong>Course:</strong> ${course}</li>
-                    <li><strong>Accommodation:</strong> ${accommodation}</li>
-                    <li><strong>Taxi Required:</strong> ${taxi_required}</li>
-                    <li><strong>Arrival Date:</strong> ${arrival_date}</li>
-                    <li><strong>Departure Date:</strong> ${departure_date}</li>
-                  </ul>
-
-                  <p><strong>IMPORTANT:</strong> You will now be contacted to submit a deposit to secure your booking.</p>
-
-                  <p>Best regards,<br>AM Language Team</p>
-                `
-            };
-
-            // Email to the customer
-const customerMail = {
-    from: 'yourgmail@gmail.com',
-    to: user_email,
-    subject: 'Your Booking Confirmation – AM Language',
-    html: `
-      <h2>Booking Confirmation</h2>
-      <p>Dear ${user_name},</p>
-      <p>Thank you for your booking with AM Language. Here are your details:</p>
-
-      <ul>
-        <li><strong>Name:</strong> ${user_name} ${surname}</li>
-        <li><strong>Email:</strong> ${user_email}</li>
-        <li><strong>Phone:</strong> ${contact_number}</li>
-        <li><strong>Restaurant:</strong> ${restaurant}</li>
-        <li><strong>Course:</strong> ${course}</li>
-        <li><strong>Accommodation:</strong> ${accommodation}</li>
-        <li><strong>Taxi Required:</strong> ${taxi_required}</li>
-        <li><strong>Arrival Date:</strong> ${arrival_date}</li>
-        <li><strong>Departure Date:</strong> ${departure_date}</li>
-      </ul>
-
-      <p><strong>IMPORTANT:</strong> You will now be contacted to submit a deposit to secure your booking.</p>
-
-      <p>Best regards,<br>AM Language Team</p>
-    `
-};
+  
+    res.render('thank_you', {
+      user_name, agentId, surname, contact_number, user_email,
+      restaurant, course, accommodation, taxi_required,
+      arrival_date, departure_date
+    });
+  });
+  
 
 // Email to the school
 const schoolMail = {
@@ -375,7 +362,77 @@ app.listen(3000, '0.0.0.0', () => {
     console.log('Server running on port 3000');
 });
 
-
+app.post('/webhook', async (req, res) => {
+    const sig = req.headers['stripe-signature'];
+  
+    let event;
+    try {
+      event = stripe.webhooks.constructEvent(
+        req.body,
+        sig,
+        process.env.STRIPE_WEBHOOK_SECRET
+      );
+    } catch (err) {
+      console.error('❌ Webhook signature error:', err.message);
+      return res.sendStatus(400);
+    }
+  
+    if (event.type === 'checkout.session.completed') {
+      const session = event.data.object;
+      const m = session.metadata;
+  
+      db.run(`INSERT INTO bookings (
+        agent_id, user_name, surname, contact_number, user_email,
+        restaurant, course, accommodation, taxi_required,
+        arrival_date, departure_date
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        m.agentId, m.user_name, m.surname, m.contact_number, m.user_email,
+        m.restaurant, m.course, m.accommodation, m.taxi_required,
+        m.arrival_date, m.departure_date
+      ], (err) => {
+        if (err) {
+          console.error('❌ Failed to save booking:', err.message);
+          return;
+        }
+  
+        // Send confirmation emails
+        const emailHTML = `
+          <h2>Booking Confirmation</h2>
+          <p>Dear ${m.user_name},</p>
+          <p>Thank you for your booking with AM Language. Here are your details:</p>
+          <ul>
+            <li><strong>Name:</strong> ${m.user_name} ${m.surname}</li>
+            <li><strong>Email:</strong> ${m.user_email}</li>
+            <li><strong>Phone:</strong> ${m.contact_number}</li>
+            <li><strong>Restaurant:</strong> ${m.restaurant}</li>
+            <li><strong>Course:</strong> ${m.course}</li>
+            <li><strong>Accommodation:</strong> ${m.accommodation}</li>
+            <li><strong>Taxi Required:</strong> ${m.taxi_required}</li>
+            <li><strong>Arrival:</strong> ${m.arrival_date}</li>
+            <li><strong>Departure:</strong> ${m.departure_date}</li>
+          </ul>
+          <p><strong>Note:</strong> Your deposit has been received.</p>
+        `;
+  
+        transporter.sendMail({
+          from: 'yourgmail@gmail.com',
+          to: [m.user_email, 'maltalanguagehub@gmail.com'],
+          subject: 'Booking Confirmed – AM Language',
+          html: emailHTML
+        }, (err, info) => {
+          if (err) {
+            console.error('❌ Email error:', err);
+          } else {
+            console.log('✅ Confirmation email sent:', info.response);
+          }
+        });
+      });
+    }
+  
+    res.status(200).end();
+  });
+  
 
 // Show blackout date form
 
@@ -510,38 +567,53 @@ app.get('/admin/connect-agent/:agentId', requireAdmin, (req, res) => {
 
 app.get('/pay/:agentId', async (req, res) => {
     const agentId = req.params.agentId;
-
-    // Get agent details
-    db.get(`SELECT name FROM agents WHERE id = ?`, [agentId], async (err, agent) => {
-        if (err || !agent) {
-            return res.send('Agent not found.');
-        }
-
-        try {
-            const session = await stripe.checkout.sessions.create({
-                payment_method_types: ['card'],
-                line_items: [{
-                    price_data: {
-                        currency: 'eur',
-                        product_data: {
-                            name: `Booking deposit for AM Language – referred by ${agent.name}`,
-                        },
-                        unit_amount: 10000,
-                    },
-                    quantity: 1,
-                }],
-                mode: 'payment',
-                success_url: `https://${req.headers.host}/success`,
-                cancel_url: `https://${req.headers.host}/cancel`,
-            });
-
-            res.redirect(session.url);
-        } catch (err) {
-            console.error(err);
-            res.send('Failed to create Stripe Checkout session.');
-        }
+  
+    db.get(`SELECT name, stripe_account_id FROM agents WHERE id = ?`, [agentId], async (err, agent) => {
+      if (err || !agent) {
+        return res.send('Agent not found.');
+      }
+  
+      try {
+        const session = await stripe.checkout.sessions.create({
+          payment_method_types: ['card'],
+          line_items: [{
+            price_data: {
+              currency: 'eur',
+              product_data: {
+                name: `Booking deposit – referred by ${agent.name}`,
+              },
+              unit_amount: 10000,
+            },
+            quantity: 1,
+          }],
+          mode: 'payment',
+          success_url: `https://${req.headers.host}/success`,
+          cancel_url: `https://${req.headers.host}/cancel`,
+          metadata: {
+            agentId,
+            user_name: req.query.user_name,
+            surname: req.query.surname,
+            contact_number: req.query.contact_number,
+            user_email: req.query.user_email,
+            restaurant: req.query.restaurant,
+            course: req.query.course,
+            accommodation: req.query.accommodation,
+            taxi_required: req.query.taxi_required,
+            arrival_date: req.query.arrival_date,
+            departure_date: req.query.departure_date
+          }
+        }, {
+          stripeAccount: agent.stripe_account_id
+        });
+  
+        res.redirect(session.url);
+      } catch (err) {
+        console.error('Stripe error:', err);
+        res.send('Failed to create Stripe Checkout session.');
+      }
     });
-});
+  });
+  
 
 
 app.get('/success', (req, res) => {
