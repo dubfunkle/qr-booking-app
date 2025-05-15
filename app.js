@@ -3,7 +3,6 @@ app.use('/webhook', require('body-parser').raw({ type: 'application/json' }));
 
 const stripe = require('./stripe');
 const express = require('express');
-const bodyParser = require('body-parser');
 const sqlite3 = require('sqlite3').verbose();
 const QRCode = require('qrcode');
 const path = require('path');
