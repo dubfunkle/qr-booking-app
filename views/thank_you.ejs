@@ -1,11 +1,19 @@
 <%- include('partials/header', { title: 'Thank You' }) %>
 
 <div class="min-h-screen flex items-center justify-center bg-orange-50 px-4 py-10 text-center">
-  <div class="max-w-md bg-white rounded-xl shadow p-6">
-    <h2 class="text-2xl font-bold text-gray-800 mb-4">Thank you, <%= user_name %>!</h2>
-    <p class="text-lg text-gray-700 mb-2">Your booking has been successfully received.</p>
-    <p class="text-sm text-gray-500">You may now close this window.</p>
-  </div>
+    <div class="max-w-md bg-white rounded-xl shadow p-6">
+        <h2 class="text-2xl font-bold text-gray-800 mb-4">Thank you, <%= user_name %>!</h2>
+        <p class="text-lg text-gray-700 mb-2">Your booking has been successfully received.</p>
+      
+        <p class="text-sm text-gray-600 mb-6">
+          To confirm your place, please submit your €100 deposit using the button below.
+        </p>
+      
+        <a href="/pay/<%= agentId %>" 
+           class="inline-block w-full bg-green-500 hover:bg-green-600 text-white py-3 rounded-lg font-semibold text-lg transition">
+          Pay Now
+        </a>
+      </div>      
 </div>
 
 <%- include('partials/footer') %>

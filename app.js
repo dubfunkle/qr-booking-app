@@ -305,7 +305,7 @@ transporter.sendMail(schoolMail, (err, info) => {
 
 
             // ✅ Now show the thank you page
-            res.render('thank_you', { user_name });
+            res.render('thank_you', { user_name, agentId });
         });
 });
 
