@@ -1,1 +1,4 @@
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+// stripe.js
+const Stripe = require('stripe');
+const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
+module.exports = stripe;
