@@ -8,3 +8,6 @@ package-lock.json
 
 # Tailwind build output
 public/css/tailwind.css
+
+# ENV File
+.env

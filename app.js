@@ -508,3 +508,49 @@ app.get('/admin/connect-agent/:agentId', requireAdmin, (req, res) => {
         }
     });
 });
+
+app.get('/pay/:agentId', async (req, res) => {
+    const agentId = req.params.agentId;
+
+    // Get agent details and Stripe account ID
+    db.get(`SELECT name, stripe_account_id FROM agents WHERE id = ?`, [agentId], async (err, agent) => {
+        if (err || !agent || !agent.stripe_account_id) {
+            return res.send('Agent or Stripe account not found.');
+        }
+
+        try {
+            // Create Stripe Checkout session for €100 (adjust as needed)
+            const session = await stripe.checkout.sessions.create({
+                payment_method_types: ['card'],
+                line_items: [{
+                    price_data: {
+                        currency: 'eur',
+                        product_data: {
+                            name: `Booking deposit for AM Language - referred by ${agent.name}`,
+                        },
+                        unit_amount: 10000, // €100 = 10000 cents
+                    },
+                    quantity: 1,
+                }],
+                mode: 'payment',
+                success_url: `https://${req.headers.host}/success`,
+                cancel_url: `https://${req.headers.host}/cancel`,
+            }, {
+                stripeAccount: agent.stripe_account_id // ← route payment to agent
+            });
+
+            res.redirect(session.url);
+        } catch (err) {
+            console.error(err);
+            res.send('Failed to create Stripe Checkout session.');
+        }
+    });
+});
+
+app.get('/success', (req, res) => {
+    res.send('✅ Payment complete! Thank you.');
+});
+
+app.get('/cancel', (req, res) => {
+    res.send('❌ Payment cancelled.');
+});
