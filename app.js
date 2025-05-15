@@ -282,18 +282,16 @@ const schoolMail = {
 transporter.sendMail(customerMail, (err, info) => {
     if (err) console.error('Customer email error:', err);
     else console.log('Customer email sent:', info.response);
-});
-
-transporter.sendMail(schoolMail, (err, info) => {
+  });
+  
+  transporter.sendMail(schoolMail, (err, info) => {
     if (err) console.error('School email error:', err);
     else console.log('School email sent:', info.response);
-});
-
-
-            // ✅ Now show the thank you page
-            res.status(200).end(); // ✅ Proper webhook response
-        });
-});
+  });
+  }); // ✅ closes db.run
+  
+  res.status(200).end(); // ✅ send webhook response here
+  }); // ✅ closes webhook route
 
 function requireAdmin(req, res, next) {
     if (req.session.isAdmin) {
