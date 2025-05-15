@@ -16,7 +16,7 @@ const nodemailer = require('nodemailer');
 const stripe = require('./stripe');
 
 const ADMIN_USERNAME = 'stv_admin';
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'changeme';
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'Todayisafuckinggoodday!!!';
 const platformCommissionRate = 5; // 5%
 
 // Setup
