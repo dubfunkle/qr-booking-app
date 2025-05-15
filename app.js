@@ -27,7 +27,7 @@ const transporter = nodemailer.createTransport({
 const bodyParser = require('body-parser');
 app.use('/webhook', bodyParser.raw({ type: 'application/json' }));
 
-app.post('/webhook', async (req, res) => {
+// REMOVED: Duplicate/broken webhook, async (req, res) => {
     const sig = req.headers['stripe-signature'];
   
     let event;
@@ -359,7 +359,7 @@ app.listen(3000, '0.0.0.0', () => {
     console.log('Server running on port 3000');
 });
 
-app.post('/webhook', async (req, res) => {
+// REMOVED: Duplicate/broken webhook, async (req, res) => {
     const sig = req.headers['stripe-signature'];
   
     let event;
@@ -619,4 +619,71 @@ app.get('/success', (req, res) => {
 
 app.get('/cancel', (req, res) => {
     res.send('❌ Payment cancelled.');
+});
+
+// ✅ Corrected Stripe Webhook Route
+app.post('/webhook', async (req, res) => {
+  const sig = req.headers['stripe-signature'];
+  let event;
+
+  try {
+    event = stripe.webhooks.constructEvent(
+      req.body,
+      sig,
+      process.env.STRIPE_WEBHOOK_SECRET
+    );
+  } catch (err) {
+    console.error('❌ Webhook signature verification failed:', err.message);
+    return res.sendStatus(400);
+  }
+
+  if (event.type === 'checkout.session.completed') {
+    const m = event.data.object.metadata;
+
+    db.run(\`INSERT INTO bookings (
+      agent_id, user_name, surname, contact_number, user_email,
+      restaurant, course, accommodation, taxi_required,
+      arrival_date, departure_date
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)\`,
+    [
+      m.agentId, m.user_name, m.surname, m.contact_number, m.user_email,
+      m.restaurant, m.course, m.accommodation, m.taxi_required,
+      m.arrival_date, m.departure_date
+    ], (err) => {
+      if (err) {
+        console.error('❌ Failed to save booking:', err.message);
+        return;
+      }
+
+      const emailHTML = \`
+        <h2>Booking Confirmation</h2>
+        <p>Dear \${m.user_name},</p>
+        <p>Thank you for your booking with AM Language. Here are your details:</p>
+        <ul>
+          <li><strong>Name:</strong> \${m.user_name} \${m.surname}</li>
+          <li><strong>Email:</strong> \${m.user_email}</li>
+          <li><strong>Phone:</strong> \${m.contact_number}</li>
+          <li><strong>Restaurant:</strong> \${m.restaurant}</li>
+          <li><strong>Course:</strong> \${m.course}</li>
+          <li><strong>Accommodation:</strong> \${m.accommodation}</li>
+          <li><strong>Taxi Required:</strong> \${m.taxi_required}</li>
+          <li><strong>Arrival:</strong> \${m.arrival_date}</li>
+          <li><strong>Departure:</strong> \${m.departure_date}</li>
+        </ul>
+        <p><strong>Note:</strong> Your deposit has been received.</p>
+      \`;
+
+      transporter.sendMail({
+        from: 'yourgmail@gmail.com',
+        to: [m.user_email, 'maltalanguagehub@gmail.com'],
+        subject: 'Booking Confirmed – AM Language',
+        html: emailHTML
+      }, (err, info) => {
+        if (err) console.error('❌ Email error:', err);
+        else console.log('✅ Confirmation email sent:', info.response);
+      });
+    });
+  }
+
+  res.status(200).end();
 });
