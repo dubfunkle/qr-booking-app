@@ -504,9 +504,10 @@ app.get('/admin/connect-agent/:agentId', requireAdmin, (req, res) => {
             // Redirect to onboarding
             res.redirect(accountLink.url);
         } catch (error) {
-            console.error('Stripe error:', error);
-            res.send('Stripe connection error.');
+            console.error('❌ Stripe error:', error.message);
+            res.send(`Stripe connection error: ${error.message}`);
         }
+        
     });
 });
 
