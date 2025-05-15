@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const express = require('express');
 const bodyParser = require('body-parser');
 const sqlite3 = require('sqlite3').verbose();
@@ -466,3 +468,43 @@ app.post('/admin/remove-blackout', requireAdmin, (req, res) => {
     });
 });
 
+app.get('/admin/connect-agent/:agentId', requireAdmin, (req, res) => {
+    const agentId = req.params.agentId;
+
+    // Get the agent's name (optional, for redirect URL)
+    db.get(`SELECT name FROM agents WHERE id = ?`, [agentId], async (err, agent) => {
+        if (err || !agent) {
+            return res.send('Agent not found.');
+        }
+
+        try {
+            // Step 1: Create a connected Stripe account
+            const account = await stripe.accounts.create({
+                type: 'standard',
+                country: 'MT',
+                capabilities: {
+                    transfers: { requested: true }
+                }
+            });
+
+            // Step 2: Save account.id (Stripe account ID) to your DB
+            db.run(`UPDATE agents SET stripe_account_id = ? WHERE id = ?`, [account.id, agentId], (err) => {
+                if (err) return res.send('Error saving Stripe account ID.');
+            });
+
+            // Step 3: Create an onboarding link
+            const accountLink = await stripe.accountLinks.create({
+                account: account.id,
+                refresh_url: `https://${req.headers.host}/admin/connect-agent/${agentId}`,
+                return_url: `https://${req.headers.host}/admin/agents`,
+                type: 'account_onboarding',
+            });
+
+            // Redirect to onboarding
+            res.redirect(accountLink.url);
+        } catch (error) {
+            console.error('Stripe error:', error);
+            res.send('Stripe connection error.');
+        }
+    });
+});
