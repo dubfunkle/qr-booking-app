@@ -483,9 +483,6 @@ app.get('/admin/connect-agent/:agentId', requireAdmin, (req, res) => {
             const account = await stripe.accounts.create({
                 type: 'standard',
                 country: 'MT',
-                capabilities: {
-                    transfers: { requested: true }
-                }
             });
 
             // Step 2: Save account.id (Stripe account ID) to your DB
