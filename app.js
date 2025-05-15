@@ -512,31 +512,28 @@ app.get('/admin/connect-agent/:agentId', requireAdmin, (req, res) => {
 app.get('/pay/:agentId', async (req, res) => {
     const agentId = req.params.agentId;
 
-    // Get agent details and Stripe account ID
-    db.get(`SELECT name, stripe_account_id FROM agents WHERE id = ?`, [agentId], async (err, agent) => {
-        if (err || !agent || !agent.stripe_account_id) {
-            return res.send('Agent or Stripe account not found.');
+    // Get agent details
+    db.get(`SELECT name FROM agents WHERE id = ?`, [agentId], async (err, agent) => {
+        if (err || !agent) {
+            return res.send('Agent not found.');
         }
 
         try {
-            // Create Stripe Checkout session for €100 (adjust as needed)
             const session = await stripe.checkout.sessions.create({
                 payment_method_types: ['card'],
                 line_items: [{
                     price_data: {
                         currency: 'eur',
                         product_data: {
-                            name: `Booking deposit for AM Language - referred by ${agent.name}`,
+                            name: `Booking deposit for AM Language – referred by ${agent.name}`,
                         },
-                        unit_amount: 10000, // €100 = 10000 cents
+                        unit_amount: 10000,
                     },
                     quantity: 1,
                 }],
                 mode: 'payment',
                 success_url: `https://${req.headers.host}/success`,
                 cancel_url: `https://${req.headers.host}/cancel`,
-            }, {
-                stripeAccount: agent.stripe_account_id // ← route payment to agent
             });
 
             res.redirect(session.url);
@@ -546,6 +543,7 @@ app.get('/pay/:agentId', async (req, res) => {
         }
     });
 });
+
 
 app.get('/success', (req, res) => {
     res.send('✅ Payment complete! Thank you.');
