@@ -305,7 +305,7 @@ app.get('/pay/:agentId', async (req, res) => {
             });
             res.redirect(session.url);
         } catch (err) {
-            console.error('Stripe error:', err);
+            console.error('❌ Stripe session creation error:', err.message);
             res.send('Failed to create Stripe Checkout session.');
         }
     });
