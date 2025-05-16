@@ -324,7 +324,10 @@ app.get('/pay/:agentId', async (req, res) => {
                 mode: 'payment',
                 success_url: `${BASE_URL}/success`,
                 cancel_url: `${BASE_URL}/cancel`,
-                metadata: req.query
+                metadata: {
+                    ...req.query,
+                    agentId
+                  }                  
             }, {
                 stripeAccount: agent.stripe_account_id
             });
