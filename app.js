@@ -178,31 +178,47 @@ app.post('/webhook', (req, res) => {
         const m = event.data.object.metadata;
         console.log('🎯 Received metadata:', m);
       
-        db.run(`INSERT INTO bookings (
-          agent_id, user_name, surname, contact_number, user_email,
-          restaurant, course, accommodation, taxi_required,
-          arrival_date, departure_date
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [
-          m.agentId || 1, // Fallback if agentId is missing
-          m.user_name?.trim(),
-          m.surname?.trim(),
-          m.contact_number?.trim(),
-          m.user_email?.trim(),
-          m.restaurant?.trim(),
-          m.course?.trim(),
-          m.accommodation?.trim(),
-          m.taxi_required?.trim(),
-          m.arrival_date?.trim(),
-          m.departure_date?.trim()
-        ],
-        (err) => {
-          if (err) {
-            console.error('❌ DB insert error:', err.message);
-          } else {
-            console.log('✅ Booking saved to DB');
-          }
-        });
+        db.get(
+            `SELECT COUNT(*) as count FROM bookings WHERE user_email = ? AND arrival_date = ?`,
+            [m.user_email?.trim(), m.arrival_date?.trim()],
+            (err, row) => {
+              if (err) {
+                console.error('❌ DB lookup error:', err.message);
+                return;
+              }
+          
+              if (row.count > 0) {
+                console.log('⚠️ Duplicate booking detected — skipping insert');
+                return;
+              }
+          
+              db.run(`INSERT INTO bookings (
+                agent_id, user_name, surname, contact_number, user_email,
+                restaurant, course, accommodation, taxi_required,
+                arrival_date, departure_date
+              ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+              [
+                m.agentId || 1,
+                m.user_name?.trim(),
+                m.surname?.trim(),
+                m.contact_number?.trim(),
+                m.user_email?.trim(),
+                m.restaurant?.trim(),
+                m.course?.trim(),
+                m.accommodation?.trim(),
+                m.taxi_required?.trim(),
+                m.arrival_date?.trim(),
+                m.departure_date?.trim()
+              ],
+              (err) => {
+                if (err) {
+                  console.error('❌ DB insert error:', err.message);
+                } else {
+                  console.log('✅ Booking saved to DB');
+                }
+              });
+            }
+          );          
       }
       
   
@@ -211,7 +227,7 @@ app.post('/webhook', (req, res) => {
       console.error('❌ Webhook parsing error:', err.message);
       res.sendStatus(400);
     }
-  });
+});
   
 app.get('/admin/bookings', requireAdmin, (req, res) => {
     const query = `
