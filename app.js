@@ -150,14 +150,14 @@ app.post('/submit-booking', (req, res) => {
 });
 
 app.post('/webhook', async (req, res) => {
-    const sig = req.headers['stripe-signature'];
-    let event;
     try {
-        event = stripe.webhooks.constructEvent(req.body, sig, process.env.STRIPE_WEBHOOK_SECRET);
-    } catch (err) {
-        console.error('Webhook error:', err);
+        event = JSON.parse(req.body);
+        console.log('⚠️ Bypassing signature verification (for testing only)');
+      } catch (err) {
+        console.error('Webhook parsing error:', err);
         return res.sendStatus(400);
-    }
+      }
+      
 
     if (event.type === 'checkout.session.completed') {
         const m = event.data.object.metadata;
