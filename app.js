@@ -153,19 +153,21 @@ app.post('/webhook', (req, res) => {
     console.log('✅ Stripe webhook hit');
   
     try {
-      console.log('📦 typeof req.body:', typeof req.body);
-      console.log('📦 raw req.body:', req.body);
+      const event = req.body;
+      console.log('📦 Event type:', event.type);
+  
+      if (event.type === 'checkout.session.completed') {
+        const m = event.data.object.metadata;
+        console.log('🎯 Received metadata:', m);
+      }
   
       res.status(200).end();
     } catch (err) {
-      console.error('❌ Error inside webhook:', err.message);
+      console.error('❌ Webhook parsing error:', err.message);
       res.sendStatus(400);
     }
   });
   
-  
-  
-
 app.get('/admin/bookings', requireAdmin, (req, res) => {
     const query = `
         SELECT bookings.*, agents.name AS agent_name, agents.commission_rate
