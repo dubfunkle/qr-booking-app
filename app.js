@@ -150,30 +150,24 @@ app.post('/submit-booking', (req, res) => {
 });
 
 app.post('/webhook', async (req, res) => {
+    console.log('✅ Stripe webhook hit');
+  
     try {
-        event = JSON.parse(req.body);
-        console.log('⚠️ Bypassing signature verification (for testing only)');
-      } catch (err) {
-        console.error('Webhook parsing error:', err);
-        return res.sendStatus(400);
-      }
-      
-
-    if (event.type === 'checkout.session.completed') {
+      const event = JSON.parse(req.body); // ⚠️ no signature check
+      console.log('📦 Event received:', event.type);
+  
+      if (event.type === 'checkout.session.completed') {
         const m = event.data.object.metadata;
-        db.run(`INSERT INTO bookings (agent_id, user_name, surname, contact_number, user_email, restaurant, course, accommodation, taxi_required, arrival_date, departure_date) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-            [m.agentId, m.user_name, m.surname, m.contact_number, m.user_email, m.restaurant, m.course, m.accommodation, m.taxi_required, m.arrival_date, m.departure_date],
-            (err) => {
-                if (err) return console.error('Failed to save booking:', err);
-                const emailHTML = `<h2>Booking Confirmation</h2><p>Dear ${m.user_name},</p><p>Thank you for booking with us.</p>`;
-                transporter.sendMail({ from: process.env.GMAIL_USER, to: [m.user_email, process.env.GMAIL_USER], subject: 'Booking Confirmed', html: emailHTML }, (err, info) => {
-                    if (err) console.error('Email error:', err);
-                    else console.log('Confirmation email sent:', info.response);
-                });
-            });
+        console.log('🎯 Metadata:', m);
+      }
+  
+      res.status(200).end();
+    } catch (err) {
+      console.error('❌ Webhook parsing error:', err.message);
+      res.sendStatus(400);
     }
-    res.status(200).end();
-});
+  });
+  
 
 app.get('/admin/bookings', requireAdmin, (req, res) => {
     const query = `
