@@ -104,26 +104,44 @@ app.post('/add-agent', requireAdmin, (req, res) => {
     const commissionRate = parseFloat(req.body.commission_rate) || 10;
     const safeName = agentName.replace(/[^a-z0-9]/gi, '_').toLowerCase();
 
-    db.run(`INSERT INTO agents (name, commission_rate) VALUES (?, ?)`, [agentName, commissionRate], function (err) {
-        if (err) return res.send('Error saving agent to database.');
-
-        const agentId = this.lastID;
-        const qrData = `${BASE_URL}/booking/${agentId}`;
-        const qrPath = path.join('qrcodes', `agent_${safeName}_${agentId}.png`);
-
-        QRCode.toFile(qrPath, qrData, (err) => {
-            if (err) return res.send('Error generating QR code.');
-
-            db.run(`UPDATE agents SET qr_code = ? WHERE id = ?`, [qrPath, agentId], function (err) {
-                if (err) return res.send('Error saving QR path.');
-                res.render('agent_success', {
-                    agentName,
-                    commissionRate,
-                    qrCodeUrl: `/qrcodes/agent_${safeName}_${agentId}.png`
-                });
-            });
+    db.get(`SELECT COUNT(*) as count FROM bookings WHERE user_email = ? AND arrival_date = ?`, [m.user_email.trim(), m.arrival_date.trim()], (err, row) => {
+        if (err) {
+          console.error('❌ DB check error:', err.message);
+          return;
+        }
+      
+        if (row.count > 0) {
+          console.log('⚠️ Duplicate booking ignored');
+          return;
+        }
+      
+        // Insert only if it doesn't exist
+        db.run(`INSERT INTO bookings (
+          agent_id, user_name, surname, contact_number, user_email,
+          restaurant, course, accommodation, taxi_required,
+          arrival_date, departure_date
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          m.agentId || 1,
+          m.user_name?.trim(),
+          m.surname?.trim(),
+          m.contact_number?.trim(),
+          m.user_email?.trim(),
+          m.restaurant?.trim(),
+          m.course?.trim(),
+          m.accommodation?.trim(),
+          m.taxi_required?.trim(),
+          m.arrival_date?.trim(),
+          m.departure_date?.trim()
+        ],
+        (err) => {
+          if (err) {
+            console.error('❌ DB insert error:', err.message);
+          } else {
+            console.log('✅ Booking saved to DB');
+          }
         });
-    });
+      });      
 });
 
 app.get('/booking/:agentId', (req, res) => {
