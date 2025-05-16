@@ -153,8 +153,9 @@ app.post('/webhook', async (req, res) => {
     console.log('✅ Stripe webhook hit');
   
     try {
-      const event = JSON.parse(req.body); // ⚠️ no signature check
-      console.log('📦 Event received:', event.type);
+      const rawBody = req.body.toString();
+      const event = JSON.parse(rawBody); // Now safe
+      console.log('📦 Event type:', event.type);
   
       if (event.type === 'checkout.session.completed') {
         const m = event.data.object.metadata;
@@ -167,6 +168,7 @@ app.post('/webhook', async (req, res) => {
       res.sendStatus(400);
     }
   });
+  
   
 
 app.get('/admin/bookings', requireAdmin, (req, res) => {
