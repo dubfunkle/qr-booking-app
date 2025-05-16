@@ -159,7 +159,34 @@ app.post('/webhook', (req, res) => {
       if (event.type === 'checkout.session.completed') {
         const m = event.data.object.metadata;
         console.log('🎯 Received metadata:', m);
+      
+        db.run(`INSERT INTO bookings (
+          agent_id, user_name, surname, contact_number, user_email,
+          restaurant, course, accommodation, taxi_required,
+          arrival_date, departure_date
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          m.agentId || 1, // Fallback if agentId is missing
+          m.user_name?.trim(),
+          m.surname?.trim(),
+          m.contact_number?.trim(),
+          m.user_email?.trim(),
+          m.restaurant?.trim(),
+          m.course?.trim(),
+          m.accommodation?.trim(),
+          m.taxi_required?.trim(),
+          m.arrival_date?.trim(),
+          m.departure_date?.trim()
+        ],
+        (err) => {
+          if (err) {
+            console.error('❌ DB insert error:', err.message);
+          } else {
+            console.log('✅ Booking saved to DB');
+          }
+        });
       }
+      
   
       res.status(200).end();
     } catch (err) {
