@@ -162,21 +162,28 @@ app.post('/webhook', (req, res) => {
         const m = event.data.object.metadata;
         console.log('🎯 Received metadata:', m);
       
+        // Make sure required fields exist
+        if (!m || !m.user_email || !m.arrival_date) {
+          console.log('⚠️ Metadata missing — skipping insert');
+          return;
+        }
+      
         db.get(
-            `SELECT COUNT(*) as count FROM bookings WHERE user_email = ? AND arrival_date = ?`,
-            [m.user_email?.trim(), m.arrival_date?.trim()],
-            (err, row) => {
-              if (err) {
-                console.error('❌ DB lookup error:', err.message);
-                return;
-              }
-          
-              if (row.count > 0) {
-                console.log('⚠️ Duplicate booking detected — skipping insert');
-                return;
-              }
-          
-              db.run(`INSERT INTO bookings (
+          `SELECT COUNT(*) as count FROM bookings WHERE user_email = ? AND arrival_date = ?`,
+          [m.user_email.trim(), m.arrival_date.trim()],
+          (err, row) => {
+            if (err) {
+              console.error('❌ DB lookup error:', err.message);
+              return;
+            }
+      
+            if (row.count > 0) {
+              console.log('⚠️ Duplicate booking detected — skipping insert');
+              return;
+            }
+      
+            db.run(
+              `INSERT INTO bookings (
                 agent_id, user_name, surname, contact_number, user_email,
                 restaurant, course, accommodation, taxi_required,
                 arrival_date, departure_date
@@ -200,12 +207,12 @@ app.post('/webhook', (req, res) => {
                 } else {
                   console.log('✅ Booking saved to DB');
                 }
-              });
-            }
-          );          
-      }
+              }
+            );
+          }
+        );
+      }    
       
-  
       res.status(200).end();
     } catch (err) {
       console.error('❌ Webhook parsing error:', err.message);
