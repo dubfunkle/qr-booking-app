@@ -207,31 +207,64 @@ app.post('/webhook', (req, res) => {
                 } else {
                   console.log('✅ Booking saved to DB');
                   const emailHTML = `
-                <h2>Booking Confirmation</h2>
-                <p>Dear ${m.user_name?.trim()},</p>
-                <p>Thank you for booking through our agent platform.</p>
-                <ul>
-                <li><strong>Course:</strong> ${m.course?.trim()}</li>
-                    <li><strong>Accommodation:</strong> ${m.accommodation?.trim()}</li>
-                    <li><strong>Arrival:</strong> ${m.arrival_date?.trim()}</li>
-                    <li><strong>Departure:</strong> ${m.departure_date?.trim()}</li>
+                    <h2>Booking Confirmation</h2>
+                    <p>Dear ${m.user_name?.trim()},</p>
+                    <p>Thank you for booking through our agent platform.</p>
+                    <ul>
+                        <li><strong>Full Name:</strong> ${m.user_name?.trim()} ${m.surname?.trim()}</li>
+                        <li><strong>Email:</strong> ${m.user_email?.trim()}</li>
+                        <li><strong>Phone:</strong> ${m.contact_number?.trim()}</li>
+                        <li><strong>Course:</strong> ${m.course?.trim()}</li>
+                        <li><strong>Accommodation:</strong> ${m.accommodation?.trim()}</li>
+                        <li><strong>Taxi Required:</strong> ${m.taxi_required?.trim()}</li>
+                        <li><strong>Arrival Date:</strong> ${m.arrival_date?.trim()}</li>
+                        <li><strong>Departure Date:</strong> ${m.departure_date?.trim()}</li>
+                        <li><strong>Restaurant:</strong> ${m.restaurant?.trim()}</li>
                     </ul>
                     <p>We’ll be in touch soon with more details.</p>
-                `;
+                    `;
 
-                transporter.sendMail({
-                from: process.env.GMAIL_USER,
-                to: m.user_email?.trim(),
-                subject: 'Booking Confirmation – Malta Language Hub',
-                html: emailHTML
-                }, (err, info) => {
-                if (err) {
-                    console.error('❌ Email send error:', err.message);
-                } else {
-                    console.log('✅ Confirmation email sent:', info.response);
-                }
-                });
+                    const schoolEmailHTML = `
+                    <h2>New Booking Request</h2>
+                    <p><strong>${m.user_name?.trim()} ${m.surname?.trim()}</strong> has just submitted a booking request.</p>
+                    <ul>
+                        <li><strong>Email:</strong> ${m.user_email?.trim()}</li>
+                        <li><strong>Phone:</strong> ${m.contact_number?.trim()}</li>
+                        <li><strong>Course:</strong> ${m.course?.trim()}</li>
+                        <li><strong>Accommodation:</strong> ${m.accommodation?.trim()}</li>
+                        <li><strong>Taxi Required:</strong> ${m.taxi_required?.trim()}</li>
+                        <li><strong>Arrival Date:</strong> ${m.arrival_date?.trim()}</li>
+                        <li><strong>Departure Date:</strong> ${m.departure_date?.trim()}</li>
+                        <li><strong>Restaurant:</strong> ${m.restaurant?.trim()}</li>
+                    </ul>
+                    <p>Kindly follow up to arrange deposit and confirm the booking.</p>
+                    `;
 
+                    transporter.sendMail({
+                    from: process.env.GMAIL_USER,
+                    to: m.user_email?.trim(),
+                    subject: 'Booking Confirmation – Malta Language Hub',
+                    html: emailHTML
+                    }, (err, info) => {
+                    if (err) {
+                        console.error('❌ Customer email error:', err.message);
+                    } else {
+                        console.log('✅ Confirmation email sent:', info.response);
+                    }
+                    });
+
+                    transporter.sendMail({
+                    from: process.env.GMAIL_USER,
+                    to: 'maltalanguagehub@gmail.com',
+                    subject: `New Booking Request – ${m.user_name?.trim()} ${m.surname?.trim()}`,
+                    html: schoolEmailHTML
+                    }, (err, info) => {
+                    if (err) {
+                        console.error('❌ School email error:', err.message);
+                    } else {
+                        console.log('✅ School notification sent:', info.response);
+                    }
+                    });
                 }
                 
               }
