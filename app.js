@@ -206,7 +206,34 @@ app.post('/webhook', (req, res) => {
                   console.error('❌ DB insert error:', err.message);
                 } else {
                   console.log('✅ Booking saved to DB');
+                  const emailHTML = `
+                <h2>Booking Confirmation</h2>
+                <p>Dear ${m.user_name?.trim()},</p>
+                <p>Thank you for booking through our agent platform.</p>
+                <ul>
+                <li><strong>Course:</strong> ${m.course?.trim()}</li>
+                    <li><strong>Accommodation:</strong> ${m.accommodation?.trim()}</li>
+                    <li><strong>Arrival:</strong> ${m.arrival_date?.trim()}</li>
+                    <li><strong>Departure:</strong> ${m.departure_date?.trim()}</li>
+                    </ul>
+                    <p>We’ll be in touch soon with more details.</p>
+                `;
+
+                transporter.sendMail({
+                from: process.env.GMAIL_USER,
+                to: m.user_email?.trim(),
+                subject: 'Booking Confirmation – Malta Language Hub',
+                html: emailHTML
+                }, (err, info) => {
+                if (err) {
+                    console.error('❌ Email send error:', err.message);
+                } else {
+                    console.log('✅ Confirmation email sent:', info.response);
                 }
+                });
+
+                }
+                
               }
             );
           }
