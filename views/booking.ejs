@@ -1,7 +1,7 @@
 <%- include('partials/header', { title: 'Book Your Course' }) %>
 
 <div class="min-h-screen bg-gradient-to-br from-orange-100 to-orange-200 flex justify-center items-start px-4 py-10">
-  <div class="w-full max-w-lg bg-white rounded-2xl shadow-lg p-8 space-y-6">
+  <div class="w-full max-w-lg bg-white rounded-2xl shadow-xl p-6">
     <div class="text-center mb-6">
       <img src="/am_logo.png" alt="AM Language" class="h-20 mx-auto mb-3">
       <h1 class="text-2xl font-bold text-gray-800">Welcome to AM Language</h1>
@@ -17,24 +17,24 @@
 
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <input type="text" name="user_name" placeholder="First Name" required
-               class="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-orange-500 transition focus:outline-none">
+               class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-orange-400 focus:outline-none">
         <input type="text" name="surname" placeholder="Surname" required
-               class="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-orange-500 transition focus:outline-none">
+               class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-orange-400 focus:outline-none">
       </div>
 
       <input type="email" name="user_email" placeholder="Email Address" required
-       class="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-orange-500 transition focus:outline-none">
+       class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-orange-400 focus:outline-none">
 
        <div>
         <label for="contact_number" class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
-        <div class="flex rounded-xl shadow-sm">
+        <div class="flex rounded-lg shadow-sm">
           <select name="phone_prefix" required
                   class="rounded-l-lg border border-r-0 border-gray-300 bg-gray-100 text-gray-700 text-sm px-3 focus:outline-none">
             <%- include('partials/phone_prefix_options') %>
           </select>
       
           <input type="tel" name="contact_number" id="contact_number" required
-                 class="w-full rounded-r-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 transition"
+                 class="w-full rounded-r-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
                  placeholder="Enter phone number">
         </div>
       </div>
@@ -42,11 +42,11 @@
       
             
 <input type="text" name="restaurant" placeholder="Where was QR scanned?" required
-       class="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-orange-500 transition focus:outline-none">
+       class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-orange-400 focus:outline-none">
 
 
       <select name="course" required
-              class="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm bg-white focus:ring-2 focus:ring-orange-500 transition focus:outline-none">
+              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm bg-white focus:ring-2 focus:ring-orange-400 focus:outline-none">
         <option value="">Select Course</option>
         <option value="General English - EUR250">General English (15hrs/week) - €250</option>
         <option value="Business English 15hrs - EUR400">Business English (15hrs/week) - €400</option>
@@ -55,7 +55,7 @@
       </select>
 
       <select name="accommodation"
-              class="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm bg-white focus:ring-2 focus:ring-orange-500 transition focus:outline-none">
+              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm bg-white focus:ring-2 focus:ring-orange-400 focus:outline-none">
         <option value="">Accommodation (optional)</option>
         <option value="Host Family Single - EUR290">Host Family Single - €290 (Low Season)</option>
         <option value="Host Family Single - EUR380">Host Family Single - €380 (Summer)</option>
@@ -68,7 +68,7 @@
         <option value="Hotel">Hotel (price on request)</option>
       </select>
 
-      <div class="flex gap-4 items-center text-sm text-gray-700 mt-4">
+      <div class="flex gap-4 items-center text-sm text-gray-700">
         <span>Taxi Required (€46)?</span>
         <label class="inline-flex items-center">
           <input type="radio" name="taxi_required" value="Yes" class="mr-2"> Yes
@@ -82,42 +82,21 @@
         <div>
           <label for="arrival_date" class="block text-sm font-medium text-gray-700 mb-1">Pick Start Date</label>
           <input type="text" name="arrival_date" id="arrival_date"
-                 class="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 transition"
+                 class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
                  required>
         </div>
       
         <div>
           <label for="departure_date" class="block text-sm font-medium text-gray-700 mb-1">Pick End Date</label>
           <input type="text" name="departure_date" id="departure_date"
-                 class="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 transition"
+                 class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
                  required>
         </div>
       </div>
       
 
       <button type="submit"
-      class="w-full bg-orange-600 hover:bg-orange-700 text-white py-3 rounded-xl font-semibold text-lg transition duration-200"
+              class="w-full bg-orange-500 hover:bg-orange-600 text-white py-3 rounded-lg font-semibold text-lg transition">
         Continue to Review
       </button>
-    </form>
-  </div>
-</div>
-
-<%- include('partials/footer') %>
-
-<script>
-  const blackoutDates = <%- JSON.stringify(blackoutDates || []) %>;
-
-  flatpickr("#arrival_date", {
-    disable: blackoutDates,
-    dateFormat: "Y-m-d",
-  });
-
-  flatpickr("#departure_date", {
-    disable: blackoutDates,
-    dateFormat: "Y-m-d",
-  });
-</script>
-
-
-
+    </
