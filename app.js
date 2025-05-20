@@ -307,6 +307,25 @@ app.get('/admin/agents', requireAdmin, (req, res) => {
     });
 });
 
+app.post('/admin/review-blackout', requireAdmin, (req, res) => {
+    const { start_date, end_date } = req.body;
+    if (!start_date || !end_date) return res.send('Both dates required.');
+
+    const start = new Date(start_date);
+    const end = new Date(end_date);
+    if (start > end) return res.send('Start date cannot be after end date.');
+
+    const dates = [];
+    let current = new Date(start);
+    while (current <= end) {
+        dates.push(current.toISOString().split('T')[0]);
+        current.setDate(current.getDate() + 1);
+    }
+
+    res.render('review_blackout', { start_date, end_date, dates });
+});
+
+
 app.get('/admin/blackout', requireAdmin, (req, res) => {
     db.all(`SELECT id, date FROM blackout_dates ORDER BY date ASC`, [], (err, rows) => {
         if (err) return res.send('Error loading blackout dates.');
