@@ -128,17 +128,30 @@ app.post('/add-agent', requireAdmin, (req, res) => {
   });
   
 
-app.get('/booking/:agentId', (req, res) => {
-    const agentId = req.params.agentId;
-    db.get(`SELECT name FROM agents WHERE id = ?`, [agentId], (err, row) => {
-        if (err || !row) return res.send('Agent not found.');
+app.get('/booking/:agentId/:locationCode', (req, res) => {
+  const agentId = req.params.agentId;
+  const locationCode = req.params.locationCode;
 
-        db.all(`SELECT date FROM blackout_dates`, [], (err, blackoutRows) => {
-            const blackoutDates = blackoutRows.map(r => r.date);
-            res.render('booking', { agentId, agentName: row.name, blackoutDates });
+  db.get(`SELECT name FROM agents WHERE id = ?`, [agentId], (err, agent) => {
+    if (err || !agent) return res.send('Agent not found.');
+
+    db.get(`SELECT location_name FROM qr_locations WHERE location_code = ? AND agent_id = ?`, [locationCode, agentId], (err, location) => {
+      if (err || !location) return res.send('Location not found or does not belong to this agent.');
+
+      db.all(`SELECT date FROM blackout_dates`, [], (err, blackoutRows) => {
+        const blackoutDates = blackoutRows.map(r => r.date);
+        res.render('booking', {
+          agentId,
+          agentName: agent.name,
+          locationName: location.location_name,
+          locationCode,
+          blackoutDates
         });
+      });
     });
+  });
 });
+
 
 app.post('/preview-booking', (req, res) => {
     const bookingData = req.body;
@@ -186,8 +199,8 @@ app.post('/webhook', (req, res) => {
               `INSERT INTO bookings (
                 agent_id, user_name, surname, contact_number, user_email,
                 restaurant, course, accommodation, taxi_required,
-                arrival_date, departure_date
-              ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                arrival_date, departure_date, location_code
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
               [
                 m.agentId || 1,
                 m.user_name?.trim(),
