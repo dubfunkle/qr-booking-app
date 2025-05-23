@@ -11,3 +11,7 @@ public/css/tailwind.css
 
 # ENV File
 .env
+
+database.sqlite
+
+node_modules/
