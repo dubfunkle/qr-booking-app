@@ -1,0 +1,109 @@
+<%- include('partials/header', { title: 'Agent Details' }) %>
+
+<div class="max-w-4xl mx-auto mt-10 px-4">
+  <h1 class="text-2xl font-bold mb-4 text-gray-800">
+    <%= agent.name %> <span class="text-sm text-gray-500">(#<%= agent.id %>)</span>
+  </h1>
+  <p class="text-gray-600 mb-6">Commission: <%= agent.commission_rate %>%</p>
+
+  <h2 class="text-lg font-semibold mb-2 text-gray-700">Locations</h2>
+
+  <% if (locations.length > 0) { %>
+    <ul class="space-y-4">
+      <% locations.forEach(loc => { %>
+        <li class="border rounded p-3 bg-white shadow-sm">
+          <strong><%= loc.location_name %></strong>  
+          <br>
+          <code class="text-sm">/booking/<%= agent.id %>/<%= loc.location_code %></code>
+         <img src="/<%= loc.qr_path %>" alt="QR Code for <%= loc.location_name %>"
+        class="mt-2 w-28 h-28 rounded shadow-md">
+         <br>
+            <a href="/<%= loc.qr_path %>" download
+            class="inline-block mt-1 text-sm text-blue-600 hover:underline">
+             ⬇ Download QR
+            </a>
+        <form action="/admin/delete-location" method="POST" onsubmit="return confirm('Are you sure you want to delete this location?');" class="mt-2">
+        <input type="hidden" name="location_id" value="<%= loc.id %>">
+        <input type="hidden" name="agent_id" value="<%= agent.id %>">
+        <button type="submit"
+                class="bg-red-500 hover:bg-red-600 text-white text-xs px-3 py-1 rounded">
+            Delete
+        </button>
+        </form>
+
+        </li>
+      <% }) %>
+    </ul>
+  <% } else { %>
+    <p class="text-sm text-gray-500">No locations yet.</p>
+  <% } %>
+
+  <hr class="my-6">
+
+<h2 class="text-lg font-semibold mb-2 text-gray-700">Add New Location</h2>
+<form action="/admin/add-location" method="POST" class="space-y-2">
+  <input type="hidden" name="agent_id" value="<%= agent.id %>">
+  <input type="hidden" name="location_code" id="locationCodeInput">
+
+  <input type="text" name="location_name" id="locationNameInput"
+         placeholder="Location Name" required
+         class="w-full px-3 py-2 border rounded"
+         oninput="generateLocationCodeAndPreview()">
+
+  <div id="previewQR" class="my-4"></div>
+
+  <button type="submit" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded">
+    Add Location
+  </button>
+</form>
+
+  <div class="mt-6">
+    <a href="/admin/agents" class="text-sm text-blue-600 hover:underline">← Back to all agents</a>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+<script>
+  const agentId = "<%= agent.id %>";
+
+  function slugify(text) {
+    return text
+      .toLowerCase()
+      .replace(/\s+/g, '_')         // Replace spaces with _
+      .replace(/[^\w\-]+/g, '')     // Remove non-word chars
+      .replace(/\_\_+/g, '_')       // Collapse multiple underscores
+      .replace(/^_+|_+$/g, '');     // Trim leading/trailing underscores
+  }
+
+  function generateLocationCodeAndPreview() {
+    const nameInput = document.getElementById("locationNameInput");
+    const codeInput = document.getElementById("locationCodeInput");
+    const preview = document.getElementById("previewQR");
+
+    const name = nameInput.value.trim();
+    const code = slugify(name);
+
+    if (!name) {
+      preview.innerHTML = "<p class='text-red-500 text-sm'>Enter a location name.</p>";
+      return;
+    }
+
+    codeInput.value = code;
+    const fullUrl = `https://agentqr.maltalanguagehub.com/booking/${agentId}/${code}`;
+    preview.innerHTML = '';
+
+    new QRCode(preview, {
+      text: fullUrl,
+      width: 120,
+      height: 120
+    });
+
+    const urlText = document.createElement("p");
+    urlText.className = "text-sm mt-2 text-gray-600";
+    urlText.innerText = fullUrl;
+    preview.appendChild(urlText);
+  }
+</script>
+
+<%- include('partials/footer') %>
+

@@ -1,4 +1,3 @@
-<%- include('partials/header', { title: 'Book Your Course' }) %>
 
 <div class="min-h-screen bg-[#fddbb3] px-4 py-10">
   <div class="w-full max-w-lg bg-[#f37021] border-2 border-white rounded-2xl shadow-xl p-6 text-white">
@@ -100,8 +99,6 @@
     </form>
   </div>
 </div>
-
-<%- include('partials/footer') %>
 
 <script>
   const blackoutDates = <%- JSON.stringify(blackoutDates || []) %>;

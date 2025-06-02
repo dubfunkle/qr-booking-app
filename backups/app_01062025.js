@@ -3,11 +3,9 @@ require('dotenv').config();
 
 const express = require('express');
 const expressLayouts = require('express-ejs-layouts');
+app.use(expressLayouts);
 
-const app = express(); // ✅ move this up BEFORE any app.use()
-
-app.use(expressLayouts); // ✅ now it works
-
+const app = express();
 const PORT = 3000;
 const BASE_URL = 'https://agentqr.maltalanguagehub.com';
 
@@ -103,13 +101,7 @@ app.post('/login', (req, res) => {
 
 app.get('/logout', (req, res) => req.session.destroy(() => res.redirect('/login')));
 
-app.get('/admin', requireAdmin, (req, res) => {
-  res.render('admin', {
-    title: 'Add Agent',
-    layout: 'partials/layout'
-  });
-});
-
+app.get('/admin', requireAdmin, (req, res) => res.render('admin'));
 
 app.post('/add-agent', requireAdmin, (req, res) => {
     const agentName = req.body.name.trim();
@@ -168,25 +160,14 @@ app.get('/booking/:agentId/:locationCode', (req, res) => {
 
 
 app.post('/preview-booking', (req, res) => {
-  const bookingData = req.body;
-  const hiddenFields = Object.entries(bookingData).map(([k, v]) => `<input type="hidden" name="${k}" value="${v}">`).join('\n');
-
-  res.render('confirm_booking', {
-    ...bookingData,
-    hiddenFields,
-    title: 'Confirm Your Booking',
-    layout: 'partials/layout'
-  });
+    const bookingData = req.body;
+    const hiddenFields = Object.entries(bookingData).map(([k, v]) => `<input type="hidden" name="${k}" value="${v}">`).join('\n');
+    res.render('confirm_booking', { ...bookingData, hiddenFields });
 });
-
 
 app.post('/submit-booking', (req, res) => {
     const data = req.body;
-    res.render('thank_you', {
-  ...data,
-  title: 'Thank You',
-  layout: 'partials/layout'
-});
+    res.render('thank_you', data);
 });
 
 app.post('/webhook', (req, res) => {
@@ -336,11 +317,7 @@ app.get('/admin/bookings', requireAdmin, (req, res) => {
             platform_commission: (platformCommissionRate / 100) * bookingValue
         }));
 
-        res.render('bookings', {
-            bookings,
-            title: 'All Bookings',
-            layout: 'partials/layout'
-            });
+        res.render('bookings', { bookings });
     });
 });
 
@@ -388,16 +365,11 @@ app.post('/admin/review-blackout', requireAdmin, (req, res) => {
 
 
 app.get('/admin/blackout', requireAdmin, (req, res) => {
-  db.all(`SELECT id, date FROM blackout_dates ORDER BY date ASC`, [], (err, rows) => {
-    if (err) return res.send('Error loading blackout dates.');
-    res.render('blackout_form', {
-      blackoutDates: rows,
-      title: 'Manage Blackout Dates',
-      layout: 'partials/layout'
+    db.all(`SELECT id, date FROM blackout_dates ORDER BY date ASC`, [], (err, rows) => {
+        if (err) return res.send('Error loading blackout dates.');
+        res.render('blackout_form', { blackoutDates: rows });
     });
-  });
 });
-
 
 app.post('/admin/add-blackout', requireAdmin, (req, res) => {
     const { start_date, end_date } = req.body;

@@ -1,12 +1,10 @@
-<%- include('partials/header', { title: 'Manage Blackout Dates' }) %>
+<div class="max-w-xl mx-auto">
+  <a href="/admin"
+     class="inline-block mb-6 bg-orange-100 hover:bg-orange-200 text-orange-800 px-4 py-2 rounded-md text-sm font-medium transition">
+    ← Back to Dashboard
+  </a>
 
-<div class="max-w-xl mx-auto mt-10 px-4">
-    <a href="/admin"
-   class="inline-block mb-6 bg-orange-100 hover:bg-orange-200 text-orange-800 px-4 py-2 rounded-md text-sm font-medium transition">
-  ← Back to Dashboard
-</a>
-
-  <h1 class="text-2xl font-bold mb-6 text-gray-800">Manage Blackout Dates</h1>
+  <h1 class="text-2xl font-bold mb-6 text-gray-800 text-center">Manage Blackout Dates</h1>
 
   <form action="/admin/review-blackout" method="POST" class="space-y-4 bg-white p-6 rounded-xl shadow">
     <div class="flex gap-4">
@@ -27,31 +25,26 @@
       Block This Range
     </button>
   </form>
-</div>
 
-
-<% if (blackoutDates && blackoutDates.length > 0) { %>
+  <% if (blackoutDates && blackoutDates.length > 0) { %>
     <hr class="my-8">
   
-    <h2 class="text-xl font-bold mb-4 text-gray-800">Blocked Dates</h2>
+    <h2 class="text-xl font-bold mb-4 text-gray-800 text-center">Blocked Dates</h2>
   
     <form action="/admin/remove-blackout" method="POST" onsubmit="return confirm('Remove selected dates?')">
-        <ul class="space-y-2">
-          <% blackoutDates.forEach(date => { %>
-            <li class="flex items-center gap-3 bg-gray-50 p-3 rounded-lg border text-sm text-gray-700">
-              <input type="checkbox" name="ids" value="<%= date.id %>" class="form-checkbox h-4 w-4 text-red-500">
-              <span><%= date.date %></span>
-            </li>
-          <% }) %>
-        </ul>
-      
-        <button type="submit"
-                class="mt-4 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-semibold text-sm transition">
-          Remove Selected Dates
-        </button>
-      </form>
-      
+      <ul class="space-y-2">
+        <% blackoutDates.forEach(date => { %>
+          <li class="flex items-center gap-3 bg-gray-50 p-3 rounded-lg border text-sm text-gray-700">
+            <input type="checkbox" name="ids" value="<%= date.id %>" class="form-checkbox h-4 w-4 text-red-500">
+            <span><%= date.date %></span>
+          </li>
+        <% }) %>
+      </ul>
+    
+      <button type="submit"
+              class="mt-4 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-semibold text-sm transition">
+        Remove Selected Dates
+      </button>
+    </form>
   <% } %>
-  
-
-<%- include('partials/footer') %>
+</div>
