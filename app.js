@@ -225,8 +225,8 @@ app.post('/webhook', (req, res) => {
                 agent_id, user_name, surname, contact_number, user_email,
                 restaurant, course, accommodation, taxi_required,
                 arrival_date, departure_date, location_code
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
-                [
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+[
                     m.agentId || 1,
                     m.user_name?.trim(),
                     m.surname?.trim(),
@@ -601,5 +601,11 @@ app.get('/pay/:agentId', async (req, res) => {
 
 app.get('/success', (req, res) => res.send('✅ Payment complete! Thank you.'));
 app.get('/cancel', (req, res) => res.send('❌ Payment cancelled.'));
+
+
+app.use((err, req, res, next) => {
+  console.error('❌ Uncaught Error:', err.stack);
+  res.status(500).send('Something broke!');
+});
 
 app.listen(PORT, '0.0.0.0', () => console.log(`Server running on port ${PORT}`));
