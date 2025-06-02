@@ -102,7 +102,12 @@
 
 <script>
   document.addEventListener("DOMContentLoaded", function () {
-    const blackoutDates = <%- JSON.stringify(blackoutDates || []) %>;
+    let blackoutDates = <%- JSON.stringify(blackoutDates || []) %>;
+
+    // Workaround: force non-empty disable array to guarantee Flatpickr loads on mobile
+    if (blackoutDates.length === 0) {
+      blackoutDates = ["9999-12-31"]; // Add a fake date far in the future
+    }
 
     const departurePicker = flatpickr("#departure_date", {
       minDate: "today",
@@ -120,5 +125,6 @@
     });
   });
 </script>
+
 
 
