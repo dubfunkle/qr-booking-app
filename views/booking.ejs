@@ -114,3 +114,20 @@
   });
 </script>
 
+<script>
+  // Parse blackoutDates passed from server (it could be empty)
+  const blackoutDates = <%= JSON.stringify(blackoutDates || []) %>;
+
+  const arrivalPicker = flatpickr("#arrival_date", {
+    minDate: "today",
+    disable: blackoutDates,
+    onChange: function(selectedDates, dateStr) {
+      departurePicker.set('minDate', dateStr); // Prevent earlier departure
+    }
+  });
+
+  const departurePicker = flatpickr("#departure_date", {
+    minDate: "today",
+    disable: blackoutDates
+  });
+</script>

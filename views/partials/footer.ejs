@@ -1,23 +1,24 @@
+<!-- Flatpickr JS -->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
 <script>
-    const arrivalInput = document.querySelector('input[name="arrival_date"]');
-    const departureInput = document.querySelector('input[name="departure_date"]');
-  
+  const arrivalInput = document.querySelector('input[name="arrival_date"]');
+  const departureInput = document.querySelector('input[name="departure_date"]');
+
+  if (arrivalInput && departureInput) {
     arrivalInput.addEventListener('change', () => {
       departureInput.value = "";
       departureInput.min = arrivalInput.value;
     });
-  
+
     departureInput.addEventListener('blur', () => {
       if (arrivalInput.value && departureInput.value && departureInput.value < arrivalInput.value) {
         alert("Departure date cannot be before arrival date.");
         departureInput.value = "";
       }
     });
-  </script>
-
-<!-- Flatpickr JS -->
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  }
+</script>
 
 </body>
 </html>
-
