@@ -104,6 +104,12 @@
   document.addEventListener("DOMContentLoaded", function () {
     const blackoutDates = <%- JSON.stringify(blackoutDates || []) %>;
 
+    const departurePicker = flatpickr("#departure_date", {
+      minDate: "today",
+      disable: blackoutDates,
+      dateFormat: "Y-m-d"
+    });
+
     const arrivalPicker = flatpickr("#arrival_date", {
       minDate: "today",
       disable: blackoutDates,
@@ -112,12 +118,7 @@
         departurePicker.set('minDate', dateStr);
       }
     });
-
-    const departurePicker = flatpickr("#departure_date", {
-      minDate: "today",
-      disable: blackoutDates,
-      dateFormat: "Y-m-d"
-    });
   });
 </script>
+
 
