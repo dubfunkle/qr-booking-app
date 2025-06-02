@@ -101,33 +101,23 @@
 </div>
 
 <script>
-  const blackoutDates = <%- JSON.stringify(blackoutDates || []) %>;
+  document.addEventListener("DOMContentLoaded", function () {
+    const blackoutDates = <%- JSON.stringify(blackoutDates || []) %>;
 
-  flatpickr("#arrival_date", {
-    disable: blackoutDates,
-    dateFormat: "Y-m-d",
-  });
+    const arrivalPicker = flatpickr("#arrival_date", {
+      minDate: "today",
+      disable: blackoutDates,
+      dateFormat: "Y-m-d",
+      onChange: function(selectedDates, dateStr) {
+        departurePicker.set('minDate', dateStr);
+      }
+    });
 
-  flatpickr("#departure_date", {
-    disable: blackoutDates,
-    dateFormat: "Y-m-d",
-  });
-</script>
-
-<script>
-  // Parse blackoutDates passed from server (it could be empty)
-  const blackoutDates = <%= JSON.stringify(blackoutDates || []) %>;
-
-  const arrivalPicker = flatpickr("#arrival_date", {
-    minDate: "today",
-    disable: blackoutDates,
-    onChange: function(selectedDates, dateStr) {
-      departurePicker.set('minDate', dateStr); // Prevent earlier departure
-    }
-  });
-
-  const departurePicker = flatpickr("#departure_date", {
-    minDate: "today",
-    disable: blackoutDates
+    const departurePicker = flatpickr("#departure_date", {
+      minDate: "today",
+      disable: blackoutDates,
+      dateFormat: "Y-m-d"
+    });
   });
 </script>
+
