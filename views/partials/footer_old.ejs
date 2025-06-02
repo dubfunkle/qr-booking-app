@@ -6,21 +6,6 @@
   const departureInput = document.querySelector('input[name="departure_date"]');
 
   if (arrivalInput && departureInput) {
-    const blackoutDates = window.blackoutDates || [];
-
-    const arrivalPicker = flatpickr("#arrival_date", {
-      minDate: "today",
-      disable: blackoutDates,
-      onChange: function(selectedDates, dateStr) {
-        departurePicker.set('minDate', dateStr);
-      }
-    });
-
-    const departurePicker = flatpickr("#departure_date", {
-      minDate: "today",
-      disable: blackoutDates
-    });
-
     arrivalInput.addEventListener('change', () => {
       departureInput.value = "";
       departureInput.min = arrivalInput.value;
