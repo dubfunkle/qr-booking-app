@@ -264,8 +264,7 @@ app.post('/submit-booking', async (req, res) => {
 
 
 app.post('/webhook', (req, res) => {
-    console.log("🧩 Full metadata received:", metadata);
-  
+      
     try {
       const event = req.body;
       console.log('📦 Event type:', event.type);
