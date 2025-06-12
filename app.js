@@ -112,33 +112,54 @@ app.get('/admin', requireAdmin, (req, res) => {
 });
 
 
-app.post('/add-agent', requireAdmin, (req, res) => {
-    const agentName = req.body.name.trim();
-    const commissionRate = parseFloat(req.body.commission_rate) || 10;
-    const safeName = agentName.replace(/[^a-z0-9]/gi, '_').toLowerCase();
-  
-    db.run(`INSERT INTO agents (name, commission_rate) VALUES (?, ?)`, [agentName, commissionRate], function (err) {
-      if (err) return res.send('Error saving agent to database.');
-  
-      const agentId = this.lastID;
-      const qrData = `${BASE_URL}/booking/${agentId}`;
-      const qrPath = path.join('qrcodes', `agent_${safeName}_${agentId}.png`);
-  
-      QRCode.toFile(qrPath, qrData, (err) => {
-        if (err) return res.send('Error generating QR code.');
-  
-        db.run(`UPDATE agents SET qr_code = ? WHERE id = ?`, [qrPath, agentId], function (err) {
-          if (err) return res.send('Error saving QR path to database.');
-  
-          res.render('agent_success', {
-            agentName,
-            commissionRate,
-            qrCodeUrl: `/qrcodes/agent_${safeName}_${agentId}.png`
+const bcrypt = require('bcrypt');
+
+app.post('/add-agent', requireAdmin, async (req, res) => {
+  const agentName = req.body.name.trim();
+  const email = req.body.email.trim();
+  const password = req.body.password;
+  const commissionRate = parseFloat(req.body.commission_rate) || 10;
+  const safeName = agentName.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+
+  if (!email || !password) return res.send("Missing email or password.");
+
+  try {
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    db.run(
+      `INSERT INTO agents (name, email, password, commission_rate) VALUES (?, ?, ?, ?)`,
+      [agentName, email, hashedPassword, commissionRate],
+      function (err) {
+        if (err) {
+          console.error("❌ DB insert error:", err.message);
+          return res.send('Error saving agent to database.');
+        }
+
+        const agentId = this.lastID;
+        const qrData = `${BASE_URL}/booking/${agentId}`;
+        const qrPath = path.join('qrcodes', `agent_${safeName}_${agentId}.png`);
+
+        QRCode.toFile(qrPath, qrData, (err) => {
+          if (err) return res.send('Error generating QR code.');
+
+          db.run(`UPDATE agents SET qr_code = ? WHERE id = ?`, [qrPath, agentId], function (err) {
+            if (err) return res.send('Error saving QR path to database.');
+
+            res.render('agent_success', {
+              agentName,
+              commissionRate,
+              qrCodeUrl: `/qrcodes/agent_${safeName}_${agentId}.png`
+            });
           });
         });
-      });
-    });
-  });
+      }
+    );
+  } catch (err) {
+    console.error("❌ Password hashing error:", err.message);
+    res.send("Failed to create agent.");
+  }
+});
+
   
 
 app.get('/booking/:agentId/:locationCode', (req, res) => {
