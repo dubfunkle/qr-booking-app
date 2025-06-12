@@ -1,6 +1,5 @@
-
 <div class="min-h-screen bg-[#fddbb3] px-4 py-10">
-  <div class="w-full max-w-lg bg-[#f37021] border-2 border-white rounded-2xl shadow-xl p-6 text-white">
+<div class="mx-auto w-full max-w-[95vw] sm:max-w-[500px] md:max-w-[600px] bg-[#f37021] border-2 border-white rounded-2xl shadow-xl p-6 text-white">
     <div class="text-center mb-6">
       <img src="/am_logo.png" alt="AM Language" class="h-20 mx-auto mb-3">
       <h1 class="text-2xl font-bold text-white">Welcome to AM Language</h1>
@@ -89,6 +88,19 @@
           <input type="text" name="departure_date" id="departure_date"
                 class="w-full bg-white text-gray-800 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-orange-400 focus:outline-none"
                  required>
+        </div>
+      </div>
+      <div class="mt-4">
+        <label class="block text-sm font-semibold mb-2">Choose payment method:</label>
+        <div class="flex flex-col sm:flex-row gap-4">
+          <label class="flex items-center gap-2">
+            <input type="radio" name="payment_method" value="stripe" checked class="form-radio text-orange-500">
+            <span>Pay Online</span>
+          </label>
+          <label class="flex items-center gap-2">
+            <input type="radio" name="payment_method" value="cash" class="form-radio text-orange-500">
+            <span>Pay in Cash</span>
+          </label>
         </div>
       </div>
 

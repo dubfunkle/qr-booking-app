@@ -88,7 +88,8 @@ function requireAdmin(req, res, next) {
     res.redirect('/login');
 }
 
-app.get('/', (req, res) => res.render('home'));
+app.get('/', (req, res) => res.render('home', { isHome: true }));
+
 app.get('/login', (req, res) => res.render('login'));
 
 app.post('/login', (req, res) => {
@@ -181,13 +182,53 @@ app.post('/preview-booking', (req, res) => {
 
 
 app.post('/submit-booking', (req, res) => {
-    const data = req.body;
-    res.render('thank_you', {
-  ...data,
-  title: 'Thank You',
-  layout: 'partials/layout'
+  const data = req.body;
+
+  // ✅ Destructure first, THEN use any values
+  const {
+    user_name, surname, user_email, phone_prefix, contact_number,
+    course, accommodation, taxi_required, arrival_date, departure_date,
+    agentId, location_code, restaurant, payment_method
+  } = data;
+
+  console.log("📥 Payment Method:", payment_method); // Now safe
+
+  const fullPhone = `${phone_prefix}${contact_number}`;
+
+  if (payment_method === 'cash') {
+    db.run(`
+      INSERT INTO bookings (
+        agent_id, user_name, surname, contact_number, user_email,
+        restaurant, course, accommodation, taxi_required,
+        arrival_date, departure_date, location_code,
+        payment_method, payment_status, confirmed_by_agent
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `, [
+      agentId, user_name.trim(), surname.trim(), fullPhone.trim(), user_email.trim(),
+      restaurant?.trim(), course?.trim(), accommodation?.trim(), taxi_required?.trim(),
+      arrival_date.trim(), departure_date.trim(), location_code?.trim() || null,
+      'cash', 'pending', 0
+    ], (err) => {
+      if (err) {
+        console.error('❌ DB insert error for cash booking:', err.message);
+        return res.send('Failed to save your booking. Please try again.');
+      }
+
+      return res.render('thank_you', {
+        ...data,
+        payment_method: 'cash',
+        title: 'Booking Pending',
+        layout: 'partials/layout'
+      });
+    });
+
+  } else {
+    // ✅ Add your Stripe redirect logic here instead of just rendering thank you
+    return res.redirect(`/pay/${agentId}`);
+  }
 });
-});
+
+
 
 app.post('/webhook', (req, res) => {
     console.log('✅ Stripe webhook hit');
@@ -319,7 +360,74 @@ app.post('/webhook', (req, res) => {
       res.sendStatus(400);
     }
 });
-  
+
+const bcrypt = require('bcrypt');
+
+// GET: Show login form
+app.get('/agent/login', (req, res) => {
+  res.render('agent_login', { title: 'Agent Login', error: null });
+});
+
+// POST: Handle login
+app.post('/agent/login', (req, res) => {
+  const { email, password } = req.body;
+
+  db.get('SELECT * FROM agents WHERE email = ?', [email], (err, agent) => {
+    if (err) {
+      console.error('❌ DB error:', err.message);
+      return res.render('agent_login', { title: 'Agent Login', error: 'Something went wrong' });
+    }
+
+    if (!agent) {
+      return res.render('agent_login', { title: 'Agent Login', error: 'Email not found' });
+    }
+
+    bcrypt.compare(password, agent.password, (err, isMatch) => {
+      if (err || !isMatch) {
+        return res.render('agent_login', { title: 'Agent Login', error: 'Incorrect password' });
+      }
+
+      // Set agent session
+      req.session.user = {
+        id: agent.id,
+        role: 'agent',
+        name: agent.name,
+        email: agent.email
+      };
+
+      res.redirect('/agent/dashboard');
+    });
+  });
+});
+
+// ✅ Real Agent Dashboard
+app.get('/agent/dashboard', (req, res) => {
+  if (!req.session.user || req.session.user.role !== 'agent') {
+    return res.redirect('/agent/login');
+  }
+
+  const agentId = req.session.user.id;
+
+  db.all(`
+    SELECT * FROM bookings
+    WHERE agent_id = ? AND payment_method = 'cash'
+    ORDER BY id DESC
+  `, [agentId], (err, rows) => {
+    if (err) {
+      console.error("❌ Failed to load agent bookings:", err.message);
+      return res.send("Error loading bookings");
+    }
+
+    res.render('agent_dashboard', {
+      bookings: rows,
+      agentName: req.session.user.name,
+      title: 'Agent Dashboard',
+      layout: 'partials/layout'
+    });
+  });
+});
+
+
 app.get('/admin/bookings', requireAdmin, (req, res) => {
     const query = `
         SELECT bookings.*, agents.name AS agent_name, agents.commission_rate
@@ -336,13 +444,37 @@ app.get('/admin/bookings', requireAdmin, (req, res) => {
             platform_commission: (platformCommissionRate / 100) * bookingValue
         }));
 
-        res.render('bookings', {
-            bookings,
-            title: 'All Bookings',
-            layout: 'partials/layout'
-            });
+       res.render('bookings', {
+        bookings: rows,
+        user: req.session.user || { id: 0, role: 'admin' }, // fallback for now
+        title: 'All Bookings',
+          layout: 'partials/layout'
+        });
+
     });
 });
+
+app.post('/admin/delete-bookings', requireAdmin, (req, res) => {
+  let ids = req.body.ids;
+  console.log("🧾 Bookings to delete:", ids);
+
+  if (!ids) return res.redirect('/admin/bookings');
+
+  if (!Array.isArray(ids)) ids = [ids]; // handles single checkbox selection
+
+  const placeholders = ids.map(() => '?').join(',');
+  const sql = `DELETE FROM bookings WHERE id IN (${placeholders})`;
+
+  db.run(sql, ids, (err) => {
+    if (err) {
+      console.error('❌ Failed to delete bookings:', err.message);
+      return res.send('Error deleting bookings.');
+    }
+
+    res.redirect('/admin/bookings');
+  });
+});
+
 
 app.get('/admin/agents', requireAdmin, (req, res) => {
     app.get('/admin/agent/:agentId', requireAdmin, (req, res) => {
@@ -541,6 +673,28 @@ app.post('/admin/delete-agent', requireAdmin, (req, res) => {
   });
 });
 
+app.post('/admin/confirm-cash', requireAdmin, (req, res) => {
+  const { booking_id } = req.body;
+
+  if (!booking_id) return res.send("Missing booking ID");
+
+  const timestamp = new Date().toISOString();
+
+  db.run(`
+    UPDATE bookings
+    SET payment_status = 'paid',
+        confirmed_by_agent = 1,
+        confirmed_at = ?
+    WHERE id = ?
+  `, [timestamp, booking_id], (err) => {
+    if (err) {
+      console.error("❌ Failed to confirm payment:", err.message);
+      return res.send("Error confirming payment.");
+    }
+
+    res.redirect('/admin/bookings');
+  });
+});
 
 
 app.get('/admin/connect-agent/:agentId', requireAdmin, (req, res) => {

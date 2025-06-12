@@ -1,70 +1,65 @@
 <%- include('partials/header', { title: 'All Agents' }) %>
 
 <div class="min-h-screen bg-[#fddbb3] px-4 py-10">
-  <div class="w-full max-w-6xl mx-auto">
-    <div class="bg-white rounded-2xl border-2 border-white shadow-xl p-6">
-      <h1 class="text-2xl font-bold text-gray-800 mb-6 text-center">All Agents</h1>
+  <div class="mx-auto w-full max-w-[95vw] sm:max-w-[900px] bg-[#f37021] border-2 border-white rounded-2xl shadow-xl p-6 text-white">
+    <h1 class="text-2xl font-bold mb-6 text-center">All Agents</h1>
 
-      <div class="overflow-x-auto">
-        <table class="min-w-full text-sm text-center border border-gray-300 rounded-lg overflow-hidden">
-          <thead class="bg-gray-800 text-white">
-            <tr>
-              <th class="py-2 px-3 border-b">ID</th>
-              <th class="py-2 px-3 border-b">Name</th>
-              <th class="py-2 px-3 border-b">Commission (%)</th>
-              <th class="py-2 px-3 border-b">QR Code</th>
-              <th class="py-2 px-3 border-b">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <% agents.forEach(agent => { %>
-              <tr class="even:bg-gray-50 hover:bg-orange-50 transition">
-                <td class="py-2 px-3 border-b"><%= agent.id %></td>
-                <td class="py-2 px-3 border-b whitespace-nowrap"><%= agent.name %></td>
-                <td class="py-2 px-3 border-b"><%= agent.commission_rate %></td>
+    <div class="overflow-x-auto">
+      <table class="min-w-full text-sm text-center bg-white text-gray-800 rounded-lg overflow-hidden shadow border border-white">
+        <thead class="bg-gray-800 text-white">
+          <tr>
+            <th class="py-2 px-3 border-b">ID</th>
+            <th class="py-2 px-3 border-b">Name</th>
+            <th class="py-2 px-3 border-b">Commission (%)</th>
+            <th class="py-2 px-3 border-b">QR Code</th>
+            <th class="py-2 px-3 border-b">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% agents.forEach(agent => { %>
+            <tr class="even:bg-orange-50 hover:bg-orange-100 transition">
+              <td class="py-2 px-3 border-b"><%= agent.id %></td>
+              <td class="py-2 px-3 border-b whitespace-nowrap"><%= agent.name %></td>
+              <td class="py-2 px-3 border-b"><%= agent.commission_rate %></td>
+              <td class="py-2 px-3 border-b">
+                <img src="/<%= agent.qr_code %>" alt="QR Code" class="mx-auto rounded-md shadow" width="100">
+              </td>
+              <td class="py-2 px-3 border-b align-top text-center">
+                <div class="w-40 flex flex-col gap-2 mx-auto">
 
-                <!-- QR Code -->
-                <td class="py-2 px-3 border-b text-center">
-                  <img src="/<%= agent.qr_code %>" alt="QR Code" class="mx-auto rounded-md shadow-md" width="100">
-                </td>
-
-                <!-- Actions -->
-                <td class="py-2 px-3 border-b text-center align-top">
-                <div class="flex flex-col items-center justify-center space-y-3">
-                  
-                  <!-- Manage Locations Button -->
+                  <!-- Manage Locations -->
                   <a href="/admin/agent/<%= agent.id %>"
-                    class="w-40 bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold px-4 py-2 rounded-lg shadow text-center">
+                    class="block w-full bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold px-4 py-2 rounded-lg shadow text-center">
                     Manage Locations
                   </a>
 
-                  <!-- Delete Agent Button -->
+                  <!-- Delete Agent -->
                   <form action="/admin/delete-agent" method="POST"
-                        onsubmit="return confirm('Are you sure you want to delete this agent and all their locations?');">
+                        onsubmit="return confirm('Are you sure you want to delete this agent and all their locations?');"
+                        class="w-full">
                     <input type="hidden" name="agent_id" value="<%= agent.id %>">
                     <button type="submit"
-                            class="w-40 bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold px-4 py-2 rounded-lg shadow text-center">
+                            class="block w-full bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold px-4 py-2 rounded-lg shadow text-center">
                       Delete Agent
                     </button>
                   </form>
-
                 </div>
               </td>
-              </tr>
-            <% }); %>
-          </tbody>
-        </table>
-      </div>
-
-      <div class="mt-6 flex flex-wrap justify-center gap-4">
-        <a href="/" class="bg-gray-100 hover:bg-gray-200 text-gray-800 px-4 py-2 rounded-md text-sm font-medium transition">
-          Home
-        </a>
-        <a href="/admin" class="bg-gray-300 hover:bg-gray-400 text-gray-900 px-4 py-2 rounded-md text-sm font-medium transition">
-          Back to Admin
-        </a>
-      </div>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
     </div>
+
+   <div class="mt-6 flex flex-wrap justify-end gap-4">
+  <a href="/" class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-4 py-2 rounded-lg shadow text-center">
+    Home
+  </a>
+  <a href="/admin" class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-4 py-2 rounded-lg shadow text-center">
+    Add Agent
+  </a>
+</div>
+
   </div>
 </div>
 

@@ -1,28 +1,35 @@
+
+<%- include('partials/header', { title: 'All Bookings' }) %>
+
 <h1 class="text-2xl font-bold text-gray-800 mb-6 text-center">All Bookings</h1>
 
-<div class="overflow-x-auto bg-white rounded-xl shadow border border-gray-300">
-  <table class="min-w-full text-sm text-center">
-    <thead class="bg-gray-800 text-white">
-      <tr>
-        <th class="px-3 py-2">ID</th>
-        <th class="px-3 py-2">Agent</th>
-        <th class="px-3 py-2">Name</th>
-        <th class="px-3 py-2">Surname</th>
-        <th class="px-3 py-2">Contact</th>
-        <th class="px-3 py-2">Email</th>
-        <th class="px-3 py-2">Restaurant</th>
-        <th class="px-3 py-2">Course</th>
-        <th class="px-3 py-2">Accommodation</th>
-        <th class="px-3 py-2">Taxi</th>
-        <th class="px-3 py-2">Arrival</th>
-        <th class="px-3 py-2">Departure</th>
-        <th class="px-3 py-2">Agent €</th>
-        <th class="px-3 py-2">You €</th>
-      </tr>
-    </thead>
-    <tbody>
-      <% bookings.forEach(row => { %>
+<form method="POST" action="/admin/delete-bookings">
+  <div class="overflow-x-auto bg-white rounded-xl shadow border border-gray-300">
+    <table class="min-w-full text-sm text-center">
+      <thead class="bg-gray-800 text-white">
+        <tr>
+          <th class="px-3 py-2"><input type="checkbox" id="select-all" onclick="toggleAll(this)"></th>
+          <th class="px-3 py-2">ID</th>
+          <th class="px-3 py-2">Agent</th>
+          <th class="px-3 py-2">Name</th>
+          <th class="px-3 py-2">Surname</th>
+          <th class="px-3 py-2">Contact</th>
+          <th class="px-3 py-2">Email</th>
+          <th class="px-3 py-2">Restaurant</th>
+          <th class="px-3 py-2">Course</th>
+          <th class="px-3 py-2">Accommodation</th>
+          <th class="px-3 py-2">Taxi</th>
+          <th class="px-3 py-2">Arrival</th>
+          <th class="px-3 py-2">Departure</th>
+          <th class="px-3 py-2">Agent €</th>
+          <th class="px-3 py-2">You €</th>
+          <th class="px-3 py-2">Payment Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% bookings.forEach(row => { %>
         <tr class="even:bg-gray-50 hover:bg-orange-50 transition">
+          <td class="px-3 py-2"><input type="checkbox" name="ids" value="<%= row.id %>"></td>
           <td class="px-3 py-2"><%= row.booking_id %></td>
           <td class="px-3 py-2 whitespace-nowrap"><%= row.agent_name %></td>
           <td class="px-3 py-2 whitespace-nowrap"><%= row.user_name %></td>
@@ -35,19 +42,54 @@
           <td class="px-3 py-2"><%= row.taxi_required || 'No' %></td>
           <td class="px-3 py-2 whitespace-nowrap"><%= row.arrival_date || '' %></td>
           <td class="px-3 py-2 whitespace-nowrap"><%= row.departure_date || '' %></td>
-          <td class="px-3 py-2">€<%= row.agent_commission.toFixed(2) %></td>
-          <td class="px-3 py-2">€<%= row.platform_commission.toFixed(2) %></td>
+          <td class="px-3 py-2">€<%= (row.agent_commission || 0).toFixed(2) %></td>
+          <td class="px-3 py-2">€<%= (row.platform_commission || 0).toFixed(2) %></td>
+          <td class="px-3 py-2">
+            <% if (row.payment_method === 'cash' && row.payment_status === 'pending') { %>
+              <% if (user && row.agent_id == user.id) { %>
+                <form action="/admin/confirm-cash" method="POST">
+                  <input type="hidden" name="booking_id" value="<%= row.booking_id %>">
+                  <button onclick="return confirm('Are you sure you want to mark this booking as paid?')"
+                          class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 text-sm rounded shadow">
+                    Mark as Paid
+                  </button>
+                </form>
+              <% } else { %>
+                <span class="text-yellow-600 text-sm italic">Pending (Agent Only)</span>
+              <% } %>
+            <% } else if (row.payment_method === 'cash' && row.payment_status === 'paid') { %>
+              <span class="text-green-600 font-semibold">Paid (Cash)</span>
+              <% if (row.confirmed_at) { %>
+                <br><small class="text-xs text-gray-500">Confirmed at <%= new Date(row.confirmed_at).toLocaleString() %></small>
+              <% } %>
+            <% } else { %>
+              <span class="text-blue-600 font-semibold">Paid (Stripe)</span>
+            <% } %>
+          </td>
         </tr>
-      <% }) %>
-    </tbody>
-  </table>
-</div>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
 
-<div class="mt-6 flex flex-wrap justify-center gap-4">
-  <a href="/" class="bg-gray-100 hover:bg-gray-200 text-gray-800 px-4 py-2 rounded-md text-sm font-medium transition">
-    Home
-  </a>
-  <a href="/admin" class="bg-gray-300 hover:bg-gray-400 text-gray-900 px-4 py-2 rounded-md text-sm font-medium transition">
-    Back to Admin
-  </a>
-</div>
+  <div class="mt-6 flex flex-wrap justify-center gap-4">
+    <a href="/" class="bg-blue-100 hover:bg-blue-200 text-blue-800 px-4 py-2 rounded-md text-sm font-medium transition">
+      Home
+    </a>
+    <a href="/admin" class="bg-blue-200 hover:bg-blue-300 text-blue-900 px-4 py-2 rounded-md text-sm font-medium transition">
+      Back to Admin
+    </a>
+    <button type="submit"
+            onclick="return confirm('Delete selected bookings?')"
+            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition">
+      Delete Selected
+    </button>
+  </div>
+</form>
+
+<script>
+  function toggleAll(source) {
+    const checkboxes = document.querySelectorAll('input[name="ids"]');
+    checkboxes.forEach(cb => cb.checked = source.checked);
+  }
+</script>
