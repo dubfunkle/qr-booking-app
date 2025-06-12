@@ -281,6 +281,29 @@ app.post('/submit-booking', async (req, res) => {
   }
 });
 
+app.post('/agent/confirm-cash', (req, res) => {
+  if (!req.session.user || req.session.user.role !== 'agent') {
+    return res.status(403).send('Not authorized');
+  }
+
+  const bookingId = req.body.booking_id;
+  const timestamp = new Date().toISOString();
+
+  db.run(`
+    UPDATE bookings
+    SET payment_status = 'paid',
+        confirmed_by_agent = 1,
+        confirmed_at = ?
+    WHERE id = ? AND agent_id = ?
+  `, [timestamp, bookingId, req.session.user.id], (err) => {
+    if (err) {
+      console.error("❌ Failed to confirm agent cash payment:", err.message);
+      return res.send('Error confirming payment.');
+    }
+
+    res.redirect('/agent/dashboard');
+  });
+});
 
 
 app.post('/webhook', (req, res) => {
