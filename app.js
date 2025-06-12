@@ -111,9 +111,6 @@ app.get('/admin', requireAdmin, (req, res) => {
   });
 });
 
-
-const bcrypt = require('bcrypt');
-
 app.post('/add-agent', requireAdmin, async (req, res) => {
   const agentName = req.body.name.trim();
   const email = req.body.email.trim();
