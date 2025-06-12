@@ -24,6 +24,8 @@ const ADMIN_USERNAME = 'stv_admin';
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'Todayisafuckinggoodday!!!';
 const platformCommissionRate = 5; // 5%
 
+const bcrypt = require('bcrypt');
+
 // Setup
 app.set('layout', 'partials/layout');
 app.set('view engine', 'ejs');
@@ -410,8 +412,6 @@ app.post('/webhook', (req, res) => {
       res.sendStatus(400);
     }
 });
-
-const bcrypt = require('bcrypt');
 
 // GET: Show login form
 app.get('/agent/login', (req, res) => {
