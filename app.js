@@ -548,6 +548,37 @@ app.post('/admin/delete-bookings', requireAdmin, (req, res) => {
   });
 });
 
+app.get('/thank_you', async (req, res) => {
+  const sessionId = req.query.session_id;
+  if (!sessionId) return res.send("Missing session ID");
+
+  try {
+    const session = await stripe.checkout.sessions.retrieve(sessionId);
+    const email = session.customer_details?.email || 'Customer';
+
+    res.render('thank_you', {
+      title: 'Thank You',
+      payment_method: 'stripe',
+      user_name: email,
+      agentId: '',
+      surname: '',
+      contact_number: '',
+      user_email: email,
+      restaurant: '',
+      course: '',
+      accommodation: '',
+      taxi_required: '',
+      arrival_date: '',
+      departure_date: '',
+      layout: 'partials/layout'
+    });
+
+  } catch (err) {
+    console.error("❌ Stripe session fetch error:", err.message);
+    res.send("There was a problem confirming your payment.");
+  }
+});
+
 
 app.get('/admin/agents', requireAdmin, (req, res) => {
     app.get('/admin/agent/:agentId', requireAdmin, (req, res) => {
