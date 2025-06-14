@@ -1,21 +1,30 @@
-<div class="flex justify-center">
-  <div class="max-w-2xl w-full bg-white rounded-xl shadow-md p-6">
-    <h3 class="text-xl font-semibold text-gray-800 mb-4">Step 2 of 2: Confirm Your Booking</h3>
+<%- include('partials/header') %>
 
-    <ul class="divide-y divide-gray-200 mb-6">
-      <li class="py-2"><strong>Name:</strong> <%= user_name %></li>
-      <li class="py-2"><strong>Surname:</strong> <%= surname %></li>
-      <li class="py-2"><strong>Email:</strong> <%= user_email %></li>
-      <li class="py-2"><strong>Contact:</strong> <%= contact_number %></li>
-      <li class="py-2"><strong>Restaurant:</strong> <%= restaurant %></li>
-      <li class="py-2"><strong>Course:</strong> <%= course %></li>
-      <li class="py-2"><strong>Accommodation:</strong> <%= accommodation %></li>
-      <li class="py-2"><strong>Taxi Required:</strong> <%= taxi_required %></li>
-      <li class="py-2"><strong>Arrival Date:</strong> <%= arrival_date %></li>
-      <li class="py-2"><strong>Departure Date:</strong> <%= departure_date %></li>
-    </ul>
+<div class="min-h-screen bg-[#fddbb3] px-4 py-10">
+  <div class="mx-auto w-full max-w-[95vw] sm:max-w-[500px] md:max-w-[600px] bg-white rounded-2xl shadow-xl p-6 text-gray-800">
+    <h1 class="text-2xl font-bold text-center mb-6 text-orange-600">Review Your Booking</h1>
 
-    <form action="/submit-booking" method="POST" class="space-y-4">
+    <div class="space-y-2 text-sm">
+      <p><strong>First Name:</strong> <%= user_name %></p>
+      <p><strong>Surname:</strong> <%= surname %></p>
+      <p><strong>Email:</strong> <%= user_email %></p>
+      <p><strong>Phone:</strong> <%= phone_prefix %><%= contact_number %></p>
+      <p><strong>Course:</strong> <%= course %></p>
+      <p><strong>Accommodation:</strong> <%= accommodation %></p>
+      <% if (extra) { %><p><strong>Extra:</strong> <%= extra %></p><% } %>
+      <p><strong>Taxi Required:</strong> <%= taxi_required %></p>
+      <p><strong>Arrival Date:</strong> <%= arrival_date %></p>
+      <p><strong>Departure Date:</strong> <%= departure_date %></p>
+      <p><strong>Location:</strong> <%= restaurant %></p>
+      <p><strong>Payment Method:</strong> <%= payment_method === 'cash' ? 'Cash' : 'Pay Online' %></p>
+    </div>
+
+    <div class="mt-6 text-lg font-semibold">
+      <p>Total: €<%= total_price %></p>
+      <p>Deposit: €<%= deposit %></p>
+    </div>
+
+    <form action="/submit-booking" method="POST" class="space-y-4 mt-8">
       <%- hiddenFields %>
       <button type="submit" class="w-full bg-green-500 hover:bg-green-600 text-white py-3 rounded-lg font-semibold text-lg transition">
         Confirm Booking
@@ -26,3 +35,5 @@
     </form>
   </div>
 </div>
+
+<%- include('partials/footer') %>

@@ -107,13 +107,15 @@ app.post('/login', (req, res) => {
 app.get('/logout', (req, res) => req.session.destroy(() => res.redirect('/login')));
 
 app.get('/admin', requireAdmin, (req, res) => {
-  res.render('admin', {
-    title: 'Add Agent',
-    layout: 'partials/layout'
-  });
+  res.render('home', { title: 'Admin Dashboard', layout: 'partials/layout' });
 });
 
-app.post('/add-agent', requireAdmin, async (req, res) => {
+app.get('/admin/add-agent', requireAdmin, (req, res) => {
+  res.render('admin', { title: 'Add Agent', layout: 'partials/layout' });
+});
+
+
+app.post('/admin/add-agent', requireAdmin, async (req, res) => {
   const agentName = req.body.name.trim();
   const email = req.body.email.trim();
   const password = req.body.password;
@@ -173,14 +175,29 @@ app.get('/booking/:agentId/:locationCode', (req, res) => {
 
       db.all(`SELECT date FROM blackout_dates`, [], (err, blackoutRows) => {
         const blackoutDates = blackoutRows.map(r => r.date);
-        res.render('booking', {
-        agentId,
-        agentName: agent.name,
-        locationName: location.location_name,
-        locationCode,
-        blackoutDates,
-        title: 'Book Your Course',
-        layout: 'partials/layout'
+
+        db.all(`SELECT * FROM pricing_options WHERE active = 1`, [], (err, options) => {
+          if (err) {
+            console.error("❌ Failed to load pricing options:", err.message);
+            return res.send("Error loading booking options.");
+          }
+
+          const courses = options.filter(opt => opt.type === 'course');
+          const accommodations = options.filter(opt => opt.type === 'accommodation');
+          const extras = options.filter(opt => opt.type === 'extra');
+
+          res.render('booking', {
+            agentId,
+            agentName: agent.name,
+            locationName: location.location_name,
+            locationCode,
+            blackoutDates,
+            courses,
+            accommodations,
+            extras,
+            title: 'Book Your Course',
+            layout: 'partials/layout'
+          });
         });
       });
     });
@@ -188,9 +205,14 @@ app.get('/booking/:agentId/:locationCode', (req, res) => {
 });
 
 
+
 app.post('/preview-booking', (req, res) => {
   const bookingData = req.body;
-  const hiddenFields = Object.entries(bookingData).map(([k, v]) => `<input type="hidden" name="${k}" value="${v}">`).join('\n');
+
+  // Generate hidden fields for re-submission
+  const hiddenFields = Object.entries(bookingData).map(([k, v]) =>
+    `<input type="hidden" name="${k}" value="${v}">`
+  ).join('\n');
 
   res.render('confirm_booking', {
     ...bookingData,
@@ -201,31 +223,36 @@ app.post('/preview-booking', (req, res) => {
 });
 
 
-app.post('/submit-booking', async (req, res) => {
+
+app.post('/submit-booking', (req, res) => {
   const data = req.body;
 
   const {
     user_name, surname, user_email, phone_prefix, contact_number,
-    course, accommodation, taxi_required, arrival_date, departure_date,
-    agentId, location_code, restaurant, payment_method
+    course, accommodation, extra, taxi_required,
+    arrival_date, departure_date, agentId, location_code, restaurant,
+    payment_method, total_price, deposit
   } = data;
 
-  console.log("📥 Payment Method:", payment_method);
   const fullPhone = `${phone_prefix}${contact_number}`;
+  const total = parseFloat(total_price || 0);
+  const depositAmount = parseFloat(deposit || 0);
+
+  console.log("📥 Payment Method:", payment_method);
 
   if (payment_method === 'cash') {
     db.run(`
       INSERT INTO bookings (
         agent_id, user_name, surname, contact_number, user_email,
-        restaurant, course, accommodation, taxi_required,
+        restaurant, course, accommodation, extra, taxi_required,
         arrival_date, departure_date, location_code,
-        payment_method, payment_status, confirmed_by_agent
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        total_price, deposit, payment_method, payment_status, confirmed_by_agent
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `, [
       agentId, user_name.trim(), surname.trim(), fullPhone.trim(), user_email.trim(),
-      restaurant?.trim(), course?.trim(), accommodation?.trim(), taxi_required?.trim(),
+      restaurant?.trim(), course?.trim(), accommodation?.trim(), extra?.trim(), taxi_required?.trim(),
       arrival_date.trim(), departure_date.trim(), location_code?.trim() || null,
-      'cash', 'pending', 0
+      total, depositAmount, 'cash', 'pending', 0
     ], (err) => {
       if (err) {
         console.error('❌ DB insert error for cash booking:', err.message);
@@ -241,45 +268,10 @@ app.post('/submit-booking', async (req, res) => {
     });
 
   } else {
-    try {
-      const session = await stripe.checkout.sessions.create({
-        payment_method_types: ['card'],
-        mode: 'payment',
-        success_url: `${req.protocol}://${req.get('host')}/thank_you?session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: `${req.protocol}://${req.get('host')}/booking-cancelled`,
-        line_items: [{
-          price_data: {
-            currency: 'eur',
-            product_data: {
-              name: 'English Language Booking'
-            },
-            unit_amount: 5000 // €50.00 in cents — adjust if needed
-          },
-          quantity: 1
-        }],
-        metadata: {
-          agentId,
-          user_name: user_name.trim(),
-          surname: surname.trim(),
-          user_email: user_email.trim(),
-          contact_number: fullPhone.trim(),
-          restaurant: restaurant?.trim() || '',
-          course: course?.trim() || '',
-          accommodation: accommodation?.trim() || '',
-          taxi_required: taxi_required?.trim() || '',
-          arrival_date: arrival_date.trim(),
-          departure_date: departure_date.trim(),
-          location_code: location_code?.trim() || ''
-        }
-      });
-
-      res.redirect(303, session.url);
-    } catch (err) {
-      console.error("❌ Stripe session error:", err.message);
-      res.send("Failed to redirect to Stripe.");
-    }
+    return res.redirect(`/pay/${agentId}?` + new URLSearchParams(data).toString());
   }
 });
+
 
 app.post('/agent/confirm-cash', (req, res) => {
   if (!req.session.user || req.session.user.role !== 'agent') {
@@ -500,6 +492,33 @@ app.get('/agent/dashboard', (req, res) => {
   });
 });
 
+app.get('/admin/inputs', requireAdmin, (req, res) => {
+  db.all(`SELECT * FROM pricing_options ORDER BY type, name`, (err, rows) => {
+    if (err) {
+      console.error("❌ Failed to fetch inputs:", err.message);
+      return res.send("Error loading inputs.");
+    }
+    res.render('inputs', {
+      title: 'Manage Inputs',
+      options: rows,
+      layout: 'partials/layout'
+    });
+  });
+});
+
+app.get('/admin/inputs/delete/:id', requireAdmin, (req, res) => {
+  const id = req.params.id;
+
+  db.run(`DELETE FROM pricing_options WHERE id = ?`, [id], (err) => {
+    if (err) {
+      console.error("❌ Failed to delete input:", err.message);
+      return res.send("Failed to delete option.");
+    }
+
+    res.redirect('/admin/inputs');
+  });
+});
+
 
 app.get('/admin/bookings', requireAdmin, (req, res) => {
     const query = `
@@ -526,6 +545,46 @@ app.get('/admin/bookings', requireAdmin, (req, res) => {
 
     });
 });
+
+app.get('/admin/inputs/edit/:id', requireAdmin, (req, res) => {
+  const id = req.params.id;
+
+  db.get(`SELECT * FROM pricing_options WHERE id = ?`, [id], (err, row) => {
+    if (err || !row) {
+      console.error("❌ Failed to load input:", err?.message);
+      return res.send("Option not found.");
+    }
+
+    res.render('edit_input', {
+      title: 'Edit Input',
+      input: row,
+      layout: 'partials/layout'
+    });
+  });
+});
+
+app.post('/admin/inputs/edit/:id', requireAdmin, (req, res) => {
+  const id = req.params.id;
+  const { name, type, price } = req.body;
+
+  if (!name || !type || !price) {
+    return res.send("All fields are required.");
+  }
+
+  db.run(`
+    UPDATE pricing_options
+    SET name = ?, type = ?, price = ?
+    WHERE id = ?
+  `, [name.trim(), type.trim(), parseFloat(price), id], (err) => {
+    if (err) {
+      console.error("❌ Failed to update option:", err.message);
+      return res.send("Failed to update.");
+    }
+
+    res.redirect('/admin/inputs');
+  });
+});
+
 
 app.post('/admin/delete-bookings', requireAdmin, (req, res) => {
   let ids = req.body.ids;
@@ -699,6 +758,27 @@ app.post('/admin/add-location', requireAdmin, (req, res) => {
     );
   });
 });
+
+app.post('/admin/inputs', requireAdmin, (req, res) => {
+  const { name, type, price } = req.body;
+
+  if (!name || !type || !price) {
+    return res.send("All fields are required.");
+  }
+
+  db.run(`
+    INSERT INTO pricing_options (name, type, price)
+    VALUES (?, ?, ?)
+  `, [name.trim(), type.trim(), parseFloat(price)], (err) => {
+    if (err) {
+      console.error("❌ Failed to insert pricing option:", err.message);
+      return res.send("Failed to add input.");
+    }
+
+    res.redirect('/admin/inputs');
+  });
+});
+
 
 app.post('/admin/delete-location', requireAdmin, (req, res) => {
   const { location_id, agent_id } = req.body;

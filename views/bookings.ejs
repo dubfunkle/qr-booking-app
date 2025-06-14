@@ -45,27 +45,28 @@
           <td class="px-3 py-2">€<%= (row.agent_commission || 0).toFixed(2) %></td>
           <td class="px-3 py-2">€<%= (row.platform_commission || 0).toFixed(2) %></td>
           <td class="px-3 py-2">
-            <% if (row.payment_method === 'cash' && row.payment_status === 'pending') { %>
-              <% if (user && row.agent_id == user.id) { %>
-                <form action="/admin/confirm-cash" method="POST">
-                  <input type="hidden" name="booking_id" value="<%= row.booking_id %>">
-                  <button onclick="return confirm('Are you sure you want to mark this booking as paid?')"
-                          class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 text-sm rounded shadow">
-                    Mark as Paid
-                  </button>
-                </form>
-              <% } else { %>
-                <span class="text-yellow-600 text-sm italic">Pending (Agent Only)</span>
-              <% } %>
-            <% } else if (row.payment_method === 'cash' && row.payment_status === 'paid') { %>
-              <span class="text-green-600 font-semibold">Paid (Cash)</span>
-              <% if (row.confirmed_at) { %>
-                <br><small class="text-xs text-gray-500">Confirmed at <%= new Date(row.confirmed_at).toLocaleString() %></small>
-              <% } %>
+          <% if (row.payment_method === 'cash' && row.payment_status === 'pending') { %>
+            <% if (user && user.role === 'agent' && row.agent_id == user.id) { %>
+              <form action="/agent/confirm-cash" method="POST">
+                <input type="hidden" name="booking_id" value="<%= row.id %>">
+                <button onclick="return confirm('Are you sure you want to mark this booking as paid?')"
+                        class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 text-sm rounded shadow">
+                  Mark as Paid
+                </button>
+              </form>
             <% } else { %>
-              <span class="text-blue-600 font-semibold">Paid (Stripe)</span>
+              <span class="text-yellow-600 text-sm italic">Pending agent confirmation</span>
             <% } %>
-          </td>
+          <% } else if (row.payment_method === 'cash' && row.payment_status === 'paid') { %>
+            <span class="text-green-600 font-semibold">Paid (Cash)</span>
+            <% if (row.confirmed_at) { %>
+              <br><small class="text-xs text-gray-500">Confirmed at <%= new Date(row.confirmed_at).toLocaleString() %></small>
+            <% } %>
+          <% } else { %>
+            <span class="text-blue-600 font-semibold">Paid (Stripe)</span>
+          <% } %>
+        </td>
+
         </tr>
         <% }) %>
       </tbody>

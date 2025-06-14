@@ -10,14 +10,13 @@
       <input type="hidden" name="agentId" value="<%= agentId %>">
       <input type="hidden" name="location_code" value="<%= locationCode %>">
 
-  <div class="text-sm text-white space-y-1 mb-4">
-    <div><span class="font-semibold">Referred by:</span> <%= agentName %></div>
-    <div><span class="font-semibold">Location:</span> <%= locationName %></div>
-  </div>
+      <div class="text-sm text-white space-y-1 mb-4">
+        <div><span class="font-semibold">Referred by:</span> <%= agentName %></div>
+        <div><span class="font-semibold">Location:</span> <%= locationName %></div>
+      </div>
 
-  <!-- Hidden input to preserve the value in the submission -->
-  <input type="hidden" name="restaurant" value="<%= locationName %>">
-      
+      <input type="hidden" name="restaurant" value="<%= locationName %>">
+
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <input type="text" name="user_name" placeholder="First Name" required
                class="w-full bg-white text-gray-800 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-orange-400 focus:outline-none">
@@ -28,50 +27,51 @@
       <input type="email" name="user_email" placeholder="Email Address" required
        class="w-full bg-white text-gray-800 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-orange-400 focus:outline-none">
 
-       <div>
+      <div>
         <label for="contact_number" class="block text-sm font-medium text-white mb-1">Phone Number</label>
         <div class="flex rounded-lg shadow-sm">
           <select name="phone_prefix" required
                   class="rounded-l-lg border border-r-0 border-gray-300 bg-gray-100 text-gray-700 text-sm px-3 focus:outline-none">
             <%- include('partials/phone_prefix_options') %>
           </select>
-      
+
           <input type="tel" name="contact_number" id="contact_number" required
                   class="w-full rounded-r-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 text-gray-800"
                   placeholder="Enter phone number">
         </div>
       </div>
-   
-      <select name="course" required
-              class="w-full bg-white text-gray-800 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-orange-400 focus:outline-none">
-        <option value="">Select Course</option>
-        <option value="General English - EUR250">General English (15hrs/week) - €250</option>
-        <option value="Business English 15hrs - EUR400">Business English (15hrs/week) - €400</option>
-        <option value="Business English 25hrs - EUR500">Business English (25hrs/week) - €500</option>
-        <option value="IELTS - EUR250">IELTS Prep (15hrs/week) - €250</option>
+
+      <label for="course">Course</label>
+      <select name="course" id="course" class="form-select w-full text-gray-800" required onchange="calculateTotal()">
+        <option value="">-- Select --</option>
+        <% courses.forEach(c => { %>
+          <option value="<%= c.name %>" data-price="<%= c.price %>"><%= c.name %> (€<%= c.price %>)</option>
+        <% }) %>
       </select>
 
-      <select name="accommodation"
-             class="w-full bg-white text-gray-800 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-orange-400 focus:outline-none">
-        <option value="">Accommodation (optional)</option>
-        <option value="Host Family Single - EUR290">Host Family Single - €290 (Low Season)</option>
-        <option value="Host Family Single - EUR380">Host Family Single - €380 (Summer)</option>
-        <option value="Host Family Sharing - EUR240">Host Family Sharing - €240 (Low Season)</option>
-        <option value="Host Family Sharing - EUR275">Host Family Sharing - €275 (Summer)</option>
-        <option value="Apartment Single - EUR330">Apartment Single - €330 (Low Season)</option>
-        <option value="Apartment Single - EUR570">Apartment Single - €570 (Summer)</option>
-        <option value="Apartment Sharing - EUR165">Apartment Sharing - €165 (Low Season)</option>
-        <option value="Apartment Sharing - EUR285">Apartment Sharing - €285 (Summer)</option>
-        <option value="Hotel">Hotel (price on request)</option>
+      <label for="accommodation">Accommodation</label>
+      <select name="accommodation" id="accommodation" class="form-select w-full text-gray-800" required onchange="calculateTotal()">
+        <option value="">-- Select --</option>
+        <% accommodations.forEach(a => { %>
+          <option value="<%= a.name %>" data-price="<%= a.price %>"><%= a.name %> (€<%= a.price %>)</option>
+        <% }) %>
+      </select>
+
+      <label for="extra">Extras</label>
+      <select name="extra" id="extra" class="form-select w-full text-gray-800" onchange="calculateTotal()">
+        <option value="">-- None --</option>
+        <% extras.forEach(e => { %>
+          <option value="<%= e.name %>" data-price="<%= e.price %>"><%= e.name %> (€<%= e.price %>)</option>
+        <% }) %>
       </select>
 
       <div class="flex gap-4 items-center text-sm text-white">
         <span>Taxi Required (€46)?</span>
         <label class="inline-flex items-center text-white">
-          <input type="radio" name="taxi_required" value="Yes" class="mr-2"> Yes
+          <input type="radio" name="taxi_required" value="Yes" class="mr-2" onchange="calculateTotal()"> Yes
         </label>
         <label class="inline-flex items-center text-white">
-          <input type="radio" name="taxi_required" value="No" checked class="mr-2"> No
+          <input type="radio" name="taxi_required" value="No" checked class="mr-2" onchange="calculateTotal()"> No
         </label>
       </div>
 
@@ -82,7 +82,7 @@
                  class="w-full bg-white text-gray-800 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-orange-400 focus:outline-none"
                  required>
         </div>
-      
+
         <div>
           <label for="departure_date" class="block text-sm font-medium text-white mb-1">Pick End Date</label>
           <input type="text" name="departure_date" id="departure_date"
@@ -90,6 +90,15 @@
                  required>
         </div>
       </div>
+
+      <div id="totalDisplay" class="mt-4 font-bold text-lg">
+        Total: €<span id="totalAmount">0.00</span><br>
+        Deposit: €<span id="depositAmount">0.00</span>
+      </div>
+
+      <input type="hidden" name="total_price" id="total_price">
+      <input type="hidden" name="deposit" id="deposit">
+
       <div class="mt-4">
         <label class="block text-sm font-semibold mb-2">Choose payment method:</label>
         <div class="flex flex-col sm:flex-row gap-4">
@@ -113,12 +122,38 @@
 </div>
 
 <script>
+  function calculateTotal() {
+    const course = document.getElementById("course");
+    const accommodation = document.getElementById("accommodation");
+    const extra = document.getElementById("extra");
+    const taxiRequired = document.querySelector("input[name='taxi_required']:checked");
+
+    let total = 0;
+
+    [course, accommodation, extra].forEach(sel => {
+      const selected = sel.options[sel.selectedIndex];
+      if (selected && selected.dataset.price) {
+        total += parseFloat(selected.dataset.price);
+      }
+    });
+
+    if (taxiRequired && taxiRequired.value === "Yes") {
+      total += 46;
+    }
+
+    const deposit = Math.round((total * 0.10) * 100) / 100;
+
+    document.getElementById("totalAmount").innerText = total.toFixed(2);
+    document.getElementById("depositAmount").innerText = deposit.toFixed(2);
+    document.getElementById("total_price").value = total.toFixed(2);
+    document.getElementById("deposit").value = deposit.toFixed(2);
+  }
+
   document.addEventListener("DOMContentLoaded", function () {
     let blackoutDates = <%- JSON.stringify(blackoutDates || []) %>;
 
-    // Workaround: force non-empty disable array to guarantee Flatpickr loads on mobile
     if (blackoutDates.length === 0) {
-      blackoutDates = ["9999-12-31"]; // Add a fake date far in the future
+      blackoutDates = ["9999-12-31"];
     }
 
     const departurePicker = flatpickr("#departure_date", {
@@ -137,6 +172,3 @@
     });
   });
 </script>
-
-
-

@@ -1,0 +1,69 @@
+<!-- views/inputs.ejs -->
+<%- include('partials/header') %>
+
+<div class="max-w-4xl mx-auto py-8">
+  <a href="/admin" class="inline-block mb-4 bg-gray-300 hover:bg-gray-400 text-gray-800 py-2 px-4 rounded-lg font-semibold">
+    ← Back to Home
+  </a>
+
+  <h1 class="text-2xl font-bold text-gray-800 mb-6">Manage Inputs</h1>
+
+  <!-- Add New Option Form -->
+  <form action="/admin/inputs" method="POST" class="space-y-4 bg-white p-6 rounded shadow">
+    <div>
+      <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
+      <input type="text" id="name" name="name" required
+             class="mt-1 block w-full rounded border-gray-300 shadow-sm focus:ring-orange-400 focus:border-orange-400">
+    </div>
+
+    <div>
+      <label for="type" class="block text-sm font-medium text-gray-700">Type</label>
+      <select id="type" name="type" required
+              class="mt-1 block w-full rounded border-gray-300 shadow-sm focus:ring-orange-400 focus:border-orange-400">
+        <option value="course">Course</option>
+        <option value="accommodation">Accommodation</option>
+        <option value="extra">Extra</option>
+      </select>
+    </div>
+
+    <div>
+      <label for="price" class="block text-sm font-medium text-gray-700">Price (€)</label>
+      <input type="number" step="0.01" id="price" name="price" required
+             class="mt-1 block w-full rounded border-gray-300 shadow-sm focus:ring-orange-400 focus:border-orange-400">
+    </div>
+
+    <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg font-semibold">
+      Add Option
+    </button>
+  </form>
+
+  <!-- List Existing Options -->
+  <h2 class="text-xl font-semibold text-gray-800 mt-10 mb-4">Existing Options</h2>
+  <ul class="bg-white rounded shadow divide-y divide-gray-200">
+    <% if (options.length === 0) { %>
+      <li class="p-4 text-gray-500">No options added yet.</li>
+    <% } %>
+    <% options.forEach(opt => { %>
+      <li class="p-4 grid grid-cols-3 items-center">
+        <div class="col-span-2">
+          <span class="block font-medium text-gray-800"><%= opt.name %></span>
+          <span class="text-sm text-gray-600">€<%= opt.price %> &mdash; <%= opt.type %> &mdash;
+            <% if (opt.active) { %>
+              <span class="text-green-600">Active</span>
+            <% } else { %>
+              <span class="text-gray-400">Inactive</span>
+            <% } %>
+          </span>
+        </div>
+        <div class="flex justify-end space-x-2">
+          <a href="/admin/inputs/edit/<%= opt.id %>"
+             class="text-sm bg-blue-100 hover:bg-blue-200 text-blue-700 px-3 py-1 rounded">Edit</a>
+          <a href="/admin/inputs/delete/<%= opt.id %>"
+             class="text-sm bg-red-100 hover:bg-red-200 text-red-700 px-3 py-1 rounded">Delete</a>
+        </div>
+      </li>
+    <% }) %>
+  </ul>
+</div>
+
+<%- include('partials/footer') %>

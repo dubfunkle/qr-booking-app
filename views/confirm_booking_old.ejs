@@ -1,0 +1,28 @@
+<div class="flex justify-center">
+  <div class="max-w-2xl w-full bg-white rounded-xl shadow-md p-6">
+    <h3 class="text-xl font-semibold text-gray-800 mb-4">Step 2 of 2: Confirm Your Booking</h3>
+
+    <ul class="divide-y divide-gray-200 mb-6">
+      <li class="py-2"><strong>Name:</strong> <%= user_name %></li>
+      <li class="py-2"><strong>Surname:</strong> <%= surname %></li>
+      <li class="py-2"><strong>Email:</strong> <%= user_email %></li>
+      <li class="py-2"><strong>Contact:</strong> <%= contact_number %></li>
+      <li class="py-2"><strong>Restaurant:</strong> <%= restaurant %></li>
+      <li class="py-2"><strong>Course:</strong> <%= course %></li>
+      <li class="py-2"><strong>Accommodation:</strong> <%= accommodation %></li>
+      <li class="py-2"><strong>Taxi Required:</strong> <%= taxi_required %></li>
+      <li class="py-2"><strong>Arrival Date:</strong> <%= arrival_date %></li>
+      <li class="py-2"><strong>Departure Date:</strong> <%= departure_date %></li>
+    </ul>
+
+    <form action="/submit-booking" method="POST" class="space-y-4">
+      <%- hiddenFields %>
+      <button type="submit" class="w-full bg-green-500 hover:bg-green-600 text-white py-3 rounded-lg font-semibold text-lg transition">
+        Confirm Booking
+      </button>
+      <a href="javascript:history.back()" class="block text-center bg-gray-300 hover:bg-gray-400 text-gray-900 py-3 rounded-lg font-semibold text-lg transition">
+        Edit Details
+      </a>
+    </form>
+  </div>
+</div>
