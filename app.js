@@ -86,8 +86,13 @@ db.serialize(() => {
 });
 
 function requireAdmin(req, res, next) {
-    if (req.session.isAdmin) return next();
-    res.redirect('/login');
+  if (req.session.user && req.session.user.role === 'admin') return next();
+  res.redirect('/login');
+}
+
+function requireAgent(req, res, next) {
+  if (req.session.user && req.session.user.role === 'agent') return next();
+  res.redirect('/login');
 }
 
 app.get('/', (req, res) => res.render('home', { isHome: true }));
@@ -95,14 +100,42 @@ app.get('/', (req, res) => res.render('home', { isHome: true }));
 app.get('/login', (req, res) => res.render('login'));
 
 app.post('/login', (req, res) => {
-    const { username, password } = req.body;
-    if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
-        req.session.isAdmin = true;
-        res.redirect('/admin');
-    } else {
-        res.send('Invalid credentials. <a href="/login">Try again</a>.');
+  const { username, password } = req.body;
+
+  // First: check if admin
+  if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+    req.session.user = { id: 0, name: 'Admin', role: 'admin' };
+    return res.redirect('/admin');
+  }
+
+  // Then: check if agent
+  db.get('SELECT * FROM agents WHERE email = ?', [username], (err, agent) => {
+    if (err) {
+      console.error('❌ DB error:', err.message);
+      return res.send('Something went wrong. <a href="/login">Try again</a>.');
     }
+
+    if (!agent) {
+      return res.send('Email not found. <a href="/login">Try again</a>.');
+    }
+
+    bcrypt.compare(password, agent.password, (err, match) => {
+      if (err || !match) {
+        return res.send('Incorrect password. <a href="/login">Try again</a>.');
+      }
+
+      req.session.user = {
+        id: agent.id,
+        name: agent.name,
+        email: agent.email,
+        role: 'agent'
+      };
+
+      return res.redirect('/agent/dashboard');
+    });
+  });
 });
+
 
 app.get('/logout', (req, res) => req.session.destroy(() => res.redirect('/login')));
 
@@ -273,10 +306,7 @@ app.post('/submit-booking', (req, res) => {
 });
 
 
-app.post('/agent/confirm-cash', (req, res) => {
-  if (!req.session.user || req.session.user.role !== 'agent') {
-    return res.status(403).send('Not authorized');
-  }
+app.post('/agent/confirm-cash', requireAgent, (req, res) => {
 
   const bookingId = req.body.booking_id;
   const timestamp = new Date().toISOString();
@@ -465,13 +495,30 @@ app.post('/agent/login', (req, res) => {
   });
 });
 
-// ✅ Real Agent Dashboard
 app.get('/agent/dashboard', (req, res) => {
   if (!req.session.user || req.session.user.role !== 'agent') {
     return res.redirect('/agent/login');
   }
 
-  const agentId = req.session.user.id;
+  db.all(`SELECT * FROM bookings WHERE agent_id = ? ORDER BY id DESC`, [req.session.user.id], (err, rows) => {
+    if (err) {
+      console.error('❌ Agent dashboard DB error:', err.message);
+      return res.send("Error loading dashboard.");
+    }
+
+    res.render('agent_dashboard', {
+      user: req.session.user,
+      bookings: rows,
+      title: 'Agent Dashboard',
+      layout: 'partials/layout'
+    });
+  });
+});
+
+
+// ✅ Real Agent Dashboard
+app.post('/agent/confirm-cash', requireAgent, (req, res) => {
+const agentId = req.session.user.id;
 
   db.all(`
     SELECT * FROM bookings
